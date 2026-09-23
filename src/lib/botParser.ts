@@ -35,11 +35,26 @@ export function parseAmount(amountStr: string | number): number | null {
   return Math.round(num * multiplier);
 }
 
+const MAX_HISTORY = 10;
+// Exact commands skip the AI call; phrased requests are caught by the AI's "reset" intent.
+const RESET_COMMANDS = ['reset', '/reset', 'reset chat', 'hapus chat', 'clear chat'];
+const RESET_REPLY = {
+  en: '🧹 Chat history cleared. Let\'s start fresh!',
+  id: '🧹 Riwayat chat sudah dihapus. Kita mulai dari awal ya!'
+};
+
 export async function handleMessage(rawMessage: string, senderMeta: { senderPhone?: string | null; senderName?: string | null; userId?: number | null; lang?: 'id' | 'en' } = {}) {
   const message = (rawMessage || '').trim();
   if (!message) return null;
 
   const userId = senderMeta.userId || null;
+  const historyKey = String(userId ?? senderMeta.senderPhone ?? 'anon');
+
+  if (RESET_COMMANDS.includes(message.toLowerCase())) {
+    repo.clearAiHistory(historyKey);
+    return { type: 'general', text: RESET_REPLY[senderMeta.lang === 'en' ? 'en' : 'id'] };
+  }
+
   const today = new Date().toISOString().split('T')[0];
   const summary = repo.getSummary({ user_id: userId });
   const categories = repo.getCategories();
@@ -56,9 +71,17 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
   };
 
   try {
-    const aiResult = await parseWithAI(message, financialContext, senderMeta.lang);
+    const history = repo.getAiHistory(historyKey, MAX_HISTORY);
+    const aiResult = await parseWithAI(message, financialContext, senderMeta.lang, history);
 
     if (aiResult) {
+      if (aiResult.intent === 'reset') {
+        repo.clearAiHistory(historyKey);
+        return { type: 'general', text: aiResult.reply || RESET_REPLY[senderMeta.lang === 'en' ? 'en' : 'id'] };
+      }
+
+      // Store the assistant turn as JSON so the model keeps answering in JSON.
+      repo.addAiTurn(historyKey, message, JSON.stringify(aiResult), MAX_HISTORY);
       if (
         aiResult.intent === 'transaction' && 
         aiResult.transaction && 

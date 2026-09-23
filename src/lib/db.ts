@@ -71,6 +71,15 @@ function initDatabase() {
       status TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS ai_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      history_key TEXT NOT NULL,
+      role TEXT CHECK(role IN ('user', 'assistant')) NOT NULL,
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_ai_history_key ON ai_history (history_key, id);
   `);
 
   // Seed default categories if empty

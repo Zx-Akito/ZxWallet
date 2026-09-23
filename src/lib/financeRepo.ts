@@ -369,3 +369,24 @@ export function logChat({ sender, message, response, status = 'success' }: { sen
 export function getRecentChats(limit: number = 30): any[] {
   return db.prepare('SELECT * FROM chat_logs ORDER BY id DESC LIMIT ?').all(limit);
 }
+
+// Conversation memory for the AI, keyed by user id (or phone when there is no user).
+export function getAiHistory(key: string, limit: number): { role: 'user' | 'assistant'; content: string }[] {
+  const rows = db.prepare('SELECT role, content FROM ai_history WHERE history_key = ? ORDER BY id DESC LIMIT ?').all(key, limit) as any[];
+  return rows.reverse();
+}
+
+export function clearAiHistory(key: string) {
+  return db.prepare('DELETE FROM ai_history WHERE history_key = ?').run(key);
+}
+
+export const addAiTurn = db.transaction((key: string, userMsg: string, assistantMsg: string, keep: number) => {
+  const insert = db.prepare('INSERT INTO ai_history (history_key, role, content) VALUES (?, ?, ?)');
+  insert.run(key, 'user', userMsg);
+  insert.run(key, 'assistant', assistantMsg);
+  db.prepare(`
+    DELETE FROM ai_history WHERE history_key = ? AND id NOT IN (
+      SELECT id FROM ai_history WHERE history_key = ? ORDER BY id DESC LIMIT ?
+    )
+  `).run(key, key, keep);
+});

@@ -45,7 +45,8 @@ export async function callOmni(messages: any[], { temperature = 0.2, responseFor
 }
 
 // lang forces the reply language (web simulator); without it the AI follows the message's language (WhatsApp).
-export async function parseWithAI(userMessage: string, financialContext: any = {}, lang?: 'id' | 'en') {
+// history: previous turns ({ role, content }) so the AI can resolve follow-ups like "yang tadi".
+export async function parseWithAI(userMessage: string, financialContext: any = {}, lang?: 'id' | 'en', history: { role: 'user' | 'assistant'; content: string }[] = []) {
   const { 
     summary = {}, 
     categories = [], 
@@ -99,7 +100,7 @@ ${categoryNames}
 === TUGAS ANDA ===
 Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam format JSON:
 {
-  "intent": "transaction" | "query" | "general" | "export",
+  "intent": "transaction" | "query" | "general" | "export" | "reset",
   "transaction": {
     "type": "expense" | "income",
     "amount": number (nominal bersih dalam Rupiah, tanpa titik/koma),
@@ -142,6 +143,10 @@ Petunjuk Respons:
 7. Jika sapaan/bantuan/menu ("halo", "p", "menu", "help"):
    - Set intent="general", transaction=null
    - Sapa dengan ramah, berikan gambaran singkat saldo saat ini dan contoh-contoh perintah yang bisa langsung diketik.
+8. Jika pengguna ingin menghapus/melupakan riwayat percakapan dengan Anda ("reset chat dong", "lupakan obrolan tadi", "mulai dari awal", "clear our conversation"):
+   - Set intent="reset", transaction=null, export=null
+   - Di field reply, konfirmasi singkat bahwa riwayat percakapan sudah dihapus. Data transaksi TIDAK ikut terhapus.
+   - Menghapus transaksi/data keuangan BUKAN intent ini.
 
 BAHASA: ${lang
     ? `Tulis field reply WAJIB dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}, apa pun bahasa pesan pengguna. Isi export.language dengan "${lang}".`
@@ -153,6 +158,7 @@ PENTING: Keluarkan HANYA objek JSON yang valid. Tidak boleh ada markdown block a
 
   const messages = [
     { role: 'system', content: systemPrompt },
+    ...history,
     { role: 'user', content: userMessage }
   ];
 
