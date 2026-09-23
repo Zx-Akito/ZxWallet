@@ -4,6 +4,24 @@
 
 Bot WhatsApp pencatat keuangan pribadi berbasis AI. Catat pemasukan dan pengeluaran lewat chat santai, cek saldo dan anggaran, lalu minta rekap Excel/PDF yang langsung dikirim di WhatsApp. Dilengkapi dashboard web (bisa di-install sebagai PWA) yang menampilkan grafik dan analisis AI.
 
+## Screenshot
+
+> Screenshot memakai data demo.
+
+### Desktop
+
+![Dashboard](docs/screenshots/desktop-dashboard-id.png)
+
+![Grafik dan analisis AI](docs/screenshots/desktop-analytics-id.png)
+
+### Mobile
+
+<p>
+  <img src="docs/screenshots/mobile-dashboard-id.png" alt="Dashboard" width="260" />
+  <img src="docs/screenshots/mobile-analytics-id.png" alt="Grafik dan analisis AI" width="260" />
+  <img src="docs/screenshots/mobile-budget-id.png" alt="Anggaran" width="260" />
+</p>
+
 ## Fitur
 
 - **Catat lewat chat.** Kirim pesan seperti `beli kopi susu 18k` atau `masuk gaji 7jt`. AI membaca nominal, jenis, dan kategorinya, lalu mencatat transaksi.
@@ -11,6 +29,7 @@ Bot WhatsApp pencatat keuangan pribadi berbasis AI. Catat pemasukan dan pengelua
 - **Export Excel/PDF.** Minta file, misalnya `kirim excel semua transaksi` atau `rekap bulan ini pdf`, dan bot mengirimnya sebagai dokumen WhatsApp.
 - **Anggaran.** Atur batas bulanan per kategori dan pantau berapa yang sudah terpakai.
 - **Dashboard web.** Lihat transaksi, grafik, anggaran, dan skor kesehatan keuangan dari AI. Ada juga simulator chat untuk mencoba bot tanpa WhatsApp.
+- **Dua bahasa.** Dashboard bisa diganti ke bahasa Indonesia atau Inggris, dan bot membalas dalam bahasa pesan yang kamu kirim.
 - **Akun.** Pendaftaran memakai OTP yang dikirim lewat WhatsApp. Dashboard wajib login.
 
 ## Teknologi

@@ -4,6 +4,24 @@
 
 An AI-powered WhatsApp bot for personal finance. Log income and expenses in casual chat, check your balance and budgets, and get Excel/PDF reports delivered right in WhatsApp. It comes with a web dashboard (installable as a PWA) that shows charts and AI insights.
 
+## Screenshots
+
+> Screenshots use demo data.
+
+### Desktop
+
+![Dashboard](docs/screenshots/desktop-dashboard-en.png)
+
+![Charts and AI insights](docs/screenshots/desktop-analytics-en.png)
+
+### Mobile
+
+<p>
+  <img src="docs/screenshots/mobile-dashboard-en.png" alt="Dashboard" width="260" />
+  <img src="docs/screenshots/mobile-analytics-en.png" alt="Charts and AI insights" width="260" />
+  <img src="docs/screenshots/mobile-budget-en.png" alt="Budgets" width="260" />
+</p>
+
 ## Features
 
 - **Chat-based logging.** Send messages like `beli kopi susu 18k` or `masuk gaji 7jt`. The AI extracts the amount, type, and category, and records the transaction.
@@ -11,6 +29,7 @@ An AI-powered WhatsApp bot for personal finance. Log income and expenses in casu
 - **Excel/PDF export.** Ask for a file, for example `kirim excel semua transaksi` or `rekap bulan ini pdf`, and the bot sends it back as a WhatsApp document.
 - **Budgets.** Set a monthly limit per category and track how much of it you have used.
 - **Web dashboard.** View transactions, charts, budgets, and an AI health score. It also includes a chat simulator for testing the bot without WhatsApp.
+- **Bilingual.** The dashboard switches between Indonesian and English, and the bot replies in the language you write in.
 - **Accounts.** Registration uses an OTP sent through WhatsApp. You must log in to use the dashboard.
 
 ## Tech stack
