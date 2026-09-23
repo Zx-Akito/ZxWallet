@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# next.js build
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# env (secrets)
+.env*
+!.env.example
+
+# WhatsApp session (login credentials)
+auth_info_baileys/
+
+# local database
+data/
+
+# logs
+*.log
+
+# OS
+.DS_Store
+
+# AI tooling
+.claude/
+CLAUDE.md

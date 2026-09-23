@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#09090b"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="#18181b" stroke="#27272a" stroke-width="4"/>
+  <circle cx="256" cy="256" r="140" fill="#064e3b" opacity="0.4"/>
+  <path d="M140 180 C140 150 160 130 190 130 L350 130 C370 130 380 140 380 160 L380 180 Z" fill="#10b981"/>
+  <rect x="130" y="180" width="252" height="190" rx="24" fill="#059669"/>
+  <path d="M290 240 L382 240 L382 310 L290 310 C275 310 265 295 265 275 C265 255 275 240 290 240 Z" fill="#047857"/>
+  <circle cx="315" cy="275" r="14" fill="#fcd34d"/>
+  <text x="256" y="430" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="bold" fill="#10b981" text-anchor="middle" letter-spacing="3">ZxWallet</text>
+</svg>
