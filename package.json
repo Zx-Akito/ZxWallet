@@ -1,5 +1,5 @@
 {
-  "name": "wa-finance-bot",
+  "name": "zxwallet",
   "version": "1.0.0",
   "description": "",
   "main": "server/botRunner.js",
