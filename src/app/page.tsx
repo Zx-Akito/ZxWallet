@@ -118,6 +118,7 @@ export default function HomePage() {
       if (newSummary) setSummary(newSummary);
       fetchAnalytics();
       fetchBudgets();
+      fetchCategories();
     });
 
     return () => {
@@ -227,6 +228,7 @@ export default function HomePage() {
     try {
       await axios.post('/api/budgets', { category, monthly_limit: limit });
       fetchBudgets();
+      fetchCategories();
       showToast(t('Batas anggaran disimpan.', 'Budget saved.'));
     } catch (e) {
       showToast(t('Gagal menyimpan anggaran.', 'Failed to save budget.'));

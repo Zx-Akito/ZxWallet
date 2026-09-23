@@ -34,11 +34,13 @@ function initDatabase() {
 
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT UNIQUE NOT NULL,
+      user_id INTEGER,
+      name TEXT NOT NULL,
       type TEXT CHECK(type IN ('income', 'expense')) NOT NULL,
       icon TEXT,
       color TEXT,
-      keywords TEXT
+      keywords TEXT,
+      UNIQUE(user_id, name)
     );
 
     CREATE TABLE IF NOT EXISTS transactions (
@@ -81,6 +83,29 @@ function initDatabase() {
     );
     CREATE INDEX IF NOT EXISTS idx_ai_history_key ON ai_history (history_key, id);
   `);
+
+  // Migrate old categories table (global UNIQUE name) to per-user custom categories; user_id NULL = default.
+  const categoryCols = db.prepare('PRAGMA table_info(categories)').all() as any[];
+  if (!categoryCols.some((c) => c.name === 'user_id')) {
+    db.transaction(() => {
+      db.exec(`
+        CREATE TABLE categories_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER,
+          name TEXT NOT NULL,
+          type TEXT CHECK(type IN ('income', 'expense')) NOT NULL,
+          icon TEXT,
+          color TEXT,
+          keywords TEXT,
+          UNIQUE(user_id, name)
+        );
+        INSERT INTO categories_new (id, name, type, icon, color, keywords)
+          SELECT id, name, type, icon, color, keywords FROM categories;
+        DROP TABLE categories;
+        ALTER TABLE categories_new RENAME TO categories;
+      `);
+    })();
+  }
 
   // Seed default categories if empty
   const categoryCount = (db.prepare('SELECT count(*) as count FROM categories').get() as any).count;

@@ -58,7 +58,7 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
 
   const today = new Date().toISOString().split('T')[0];
   const summary = repo.getSummary({ user_id: userId });
-  const categories = repo.getCategories();
+  const categories = repo.getCategories(userId);
   const budgets = repo.getBudgetsWithUsage({ user_id: userId });
   const todayTransactions = repo.getTransactions({ user_id: userId, startDate: today, endDate: today, limit: 15 }).items;
   const categoryBreakdown = repo.getCategoryBreakdown({ user_id: userId, type: 'expense' });
@@ -94,6 +94,25 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
 
       // Store the assistant turn as JSON so the model keeps answering in JSON.
       repo.addAiTurn(historyKey, message, JSON.stringify(aiResult), MAX_HISTORY);
+      if (aiResult.intent === 'budget' && Array.isArray(aiResult.budgets)) {
+        // AI output is untrusted: positive limits only; unknown names become the user's custom expense category.
+        const valid = aiResult.budgets
+          .filter((b: any) => typeof b?.category === 'string' && Number(b?.monthly_limit) > 0)
+          .map((b: any) => ({ category: repo.ensureCategory(b.category, 'expense', userId), monthly_limit: Math.round(Number(b.monthly_limit)) }))
+          .filter((b: any) => b.category);
+        valid.forEach((b: any) => repo.setBudget(b.category, b.monthly_limit, userId));
+
+        if (valid.length > 0) {
+          return { type: 'budget', text: aiResult.reply || valid.map((b: any) => `✅ ${b.category}: ${repo.formatRupiah(b.monthly_limit)}`).join('\n') };
+        }
+        return {
+          type: 'general',
+          text: senderMeta.lang === 'en'
+            ? 'Sorry, I could not set that budget. Please mention the category and amount, e.g. "budget food 1m".'
+            : 'Maaf, anggaran belum bisa dipasang. Sebutkan kategori dan nominalnya ya, misal "budget makan 1jt".'
+        };
+      }
+
       if (
         aiResult.intent === 'transaction' && 
         aiResult.transaction && 

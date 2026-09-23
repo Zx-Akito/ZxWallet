@@ -101,7 +101,7 @@ ${categoryNames}
 === TUGAS ANDA ===
 Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam format JSON:
 {
-  "intent": "transaction" | "query" | "general" | "export" | "reset" | "search",
+  "intent": "transaction" | "query" | "general" | "export" | "reset" | "search" | "budget",
   "transaction": {
     "type": "expense" | "income",
     "amount": number (nominal bersih dalam Rupiah, tanpa titik/koma),
@@ -114,6 +114,12 @@ Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam
     "startDate": "YYYY-MM-DD" | null,
     "endDate": "YYYY-MM-DD" | null
   } | null,
+  "budgets": [
+    {
+      "category": string (nama Kategori Kas bertipe expense dari daftar di atas apa adanya, ATAU nama kategori baru bila pengguna minta kategori sendiri),
+      "monthly_limit": number (limit bulanan dalam Rupiah, bilangan bulat)
+    }
+  ] | null,
   "search": {
     "query": string (kata kunci pencarian web yang ringkas dan spesifik, sertakan tahun/tanggal bila relevan)
   } | null,
@@ -157,6 +163,12 @@ Petunjuk Respons:
    - Field reply boleh kosong; jawaban akan dibuat setelah hasil pencarian didapat.
    - Pertanyaan tentang data keuangan pengguna sendiri BUKAN intent ini.
    - Anda PUNYA akses pencarian internet lewat intent ini. JANGAN pernah menjawab bahwa Anda tidak punya akses data live/terbaru; pakai intent="search" (termasuk "saham apa yang lagi trending", "berita ekonomi hari ini").
+10. Jika pengguna ingin membuat/mengubah batas anggaran ("set budget makan 1jt", "batasi jajan 500rb sebulan", "buatin anggaran otomatis", "atur budget yang pas buat aku"):
+   - Set intent="budget", transaction=null, export=null
+   - Jika pengguna menyebut kategori & nominal, isi budgets sesuai permintaan itu saja.
+   - Jika kategori yang disebut tidak ada di daftar dan tidak cocok dengan kategori mana pun (misal "skincare", "kopi", "hobi mancing"), pakai nama kategori baru yang singkat dalam Title Case (maks 40 karakter, misal "Skincare"). Kategori baru ini otomatis dibuat khusus untuk pengguna dan bisa dipakai untuk transaksi berikutnya.
+   - Jika pengguna minta dibuatkan otomatis, JANGAN membuat kategori baru; susun budgets untuk kategori pengeluaran yang relevan berdasarkan pemasukan bulan ini dan pola pengeluaran per kategori di atas (misal pedoman 50/30/20). Total semua limit TIDAK boleh melebihi pemasukan bulan ini; jika pemasukan 0, dasarkan pada pengeluaran bulan ini. Bulatkan ke kelipatan Rp 10.000.
+   - Di field reply, sebutkan daftar anggaran yang dipasang beserta alasan singkat, dan beri tahu bahwa pengguna bisa mengubahnya kapan saja.
 
 BAHASA: ${lang
     ? `Tulis field reply WAJIB dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}, apa pun bahasa pesan pengguna. Isi export.language dengan "${lang}".`

@@ -28,7 +28,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Kategori dan limit wajib diisi' }, { status: 400 });
     }
 
-    const updated = repo.setBudget(category, monthly_limit, user?.id);
+    const categoryName = repo.ensureCategory(String(category), 'expense', user.id);
+    if (!categoryName || !(Number(monthly_limit) > 0)) {
+      return NextResponse.json({ success: false, error: 'Kategori harus kategori pengeluaran (maks 40 karakter) dan limit harus lebih dari 0' }, { status: 400 });
+    }
+
+    const updated = repo.setBudget(categoryName, Number(monthly_limit), user.id);
     return NextResponse.json({ success: true, data: updated });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

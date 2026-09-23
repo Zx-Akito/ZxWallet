@@ -14,6 +14,8 @@ interface BudgetCardsProps {
   onDeleteBudget?: (id: number) => void;
 }
 
+const NEW_CATEGORY = '__new__';
+
 export default function BudgetCards({ 
   budgets = [], 
   categories = [], 
@@ -24,12 +26,15 @@ export default function BudgetCards({
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCat, setSelectedCat] = useState('');
   const [limitInput, setLimitInput] = useState('');
+  const [newCatName, setNewCatName] = useState('');
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCat || !limitInput) return;
-    onSaveBudget(selectedCat, Number(limitInput));
+    const category = selectedCat === NEW_CATEGORY ? newCatName.trim() : selectedCat;
+    if (!category || !limitInput) return;
+    onSaveBudget(category, Number(limitInput));
     setSelectedCat('');
+    setNewCatName('');
     setLimitInput('');
     setShowAddModal(false);
   };
@@ -149,12 +154,26 @@ export default function BudgetCards({
                   onChange={(val) => setSelectedCat(val)}
                   placeholder={t('Pilih Kategori', 'Choose Category')}
                   className="w-full"
-                  options={categories.map((c) => ({
-                    value: c.name,
-                    label: `${t.cat(c.name)} (${c.type === 'income' ? t('Pemasukan', 'Income') : t('Pengeluaran', 'Expense')})`,
-                    color: c.color
-                  }))}
+                  options={[
+                    ...categories.filter((c) => c.type === 'expense').map((c) => ({
+                      value: c.name,
+                      label: t.cat(c.name),
+                      color: c.color
+                    })),
+                    { value: NEW_CATEGORY, label: t('+ Buat kategori baru', '+ Create new category') }
+                  ]}
                 />
+                {selectedCat === NEW_CATEGORY && (
+                  <input
+                    type="text"
+                    required
+                    maxLength={40}
+                    placeholder={t('Nama kategori, mis. Skincare', 'Category name, e.g. Skincare')}
+                    value={newCatName}
+                    onChange={(e) => setNewCatName(e.target.value)}
+                    className="mt-2 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
+                  />
+                )}
               </div>
 
               <div>

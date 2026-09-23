@@ -15,7 +15,7 @@ export function predictCategory(text: string, type: 'income' | 'expense' = 'expe
   }
 
   const cleanText = text.toLowerCase();
-  const categories = db.prepare('SELECT name, keywords FROM categories WHERE type = ?').all(type) as any[];
+  const categories = db.prepare('SELECT name, keywords FROM categories WHERE type = ? AND user_id IS NULL').all(type) as any[];
 
   for (const cat of categories) {
     if (!cat.keywords) continue;
@@ -257,7 +257,7 @@ export function getCategoryBreakdown({ user_id = null, type = 'expense', month, 
   const rows = db.prepare(`
     SELECT t.category, SUM(t.amount) as total, c.color, c.icon
     FROM transactions t
-    LEFT JOIN categories c ON t.category = c.name
+    LEFT JOIN categories c ON t.category = c.name AND (c.user_id IS NULL OR c.user_id = t.user_id)
     WHERE t.type = ? AND t.date LIKE ? ${userClause}
     GROUP BY t.category
     ORDER BY total DESC
@@ -311,7 +311,7 @@ export function getBudgetsWithUsage({ user_id = null, month, year }: { user_id?:
     SELECT b.id, b.category, b.monthly_limit, c.color, c.icon,
       COALESCE(SUM(t.amount), 0) as spent
     FROM budgets b
-    LEFT JOIN categories c ON b.category = c.name
+    LEFT JOIN categories c ON b.category = c.name AND (c.user_id IS NULL OR c.user_id = b.user_id)
     LEFT JOIN transactions t ON t.category = b.category AND t.type = 'expense' AND t.date LIKE ? ${tUserClause}
     WHERE 1=1 ${bUserClause}
     GROUP BY b.category
@@ -354,8 +354,22 @@ export function deleteBudget(id: number, user_id: number | null = null): boolean
   return db.prepare(query).run(id).changes > 0;
 }
 
-export function getCategories(): Category[] {
-  return db.prepare('SELECT * FROM categories ORDER BY type, name').all() as Category[];
+// Default categories (user_id NULL) plus the user's own custom ones.
+export function getCategories(user_id: number | null = null): Category[] {
+  return db.prepare('SELECT * FROM categories WHERE user_id IS NULL OR user_id = ? ORDER BY type, name').all(user_id) as Category[];
+}
+
+// Returns the visible category matching `name` (case-insensitive), creating a custom one for the user if none exists.
+export function ensureCategory(name: string, type: 'income' | 'expense', user_id: number | null): string | null {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (!clean || clean.length > 40 || !user_id) return null;
+
+  const existing = getCategories(user_id).find((c) => c.name.toLowerCase() === clean.toLowerCase());
+  if (existing) return existing.type === type ? existing.name : null;
+
+  db.prepare('INSERT INTO categories (user_id, name, type, color, keywords) VALUES (?, ?, ?, ?, ?)')
+    .run(user_id, clean, type, '#14b8a6', clean.toLowerCase());
+  return clean;
 }
 
 export function logChat({ sender, message, response, status = 'success' }: { sender: string; message: string; response: string; status?: string }) {

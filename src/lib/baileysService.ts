@@ -235,6 +235,8 @@ export default class WhatsAppService {
                 if (responseResult.type === 'transaction') {
                   this.io.emit('transaction:added', responseResult.data);
                   this.io.emit('dashboard:refresh', repo.getSummary({ user_id: user?.id }));
+                } else if (responseResult.type === 'budget') {
+                  this.io.emit('dashboard:refresh', repo.getSummary({ user_id: user?.id }));
                 }
               }
             }
