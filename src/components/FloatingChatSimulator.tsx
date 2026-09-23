@@ -11,6 +11,18 @@ import {
   FileArrowDown
 } from '@phosphor-icons/react';
 import axios from 'axios';
+import { useT } from '../lib/i18n';
+
+const EXAMPLE_PROMPTS_EN = [
+  'spent 25k on meatball soup',
+  'iced coffee 18k',
+  'paid electricity 150k',
+  'got 5m monthly salary',
+  'balance',
+  'recap this month',
+  'send excel of all transactions',
+  'this month recap pdf'
+];
 
 const EXAMPLE_PROMPTS = [
   'keluar 25rb makan bakso',
@@ -36,12 +48,11 @@ export default function FloatingChatSimulator({
   onToggle, 
   onActionSuccess 
 }: FloatingChatSimulatorProps) {
-  const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string; file?: { fileName: string; url: string } }[]>([
-    {
-      sender: 'bot',
-      text: 'Halo! Saya bot ZxWallet.\n\nKamu bisa mengetik pengeluaran atau pemasukan langsung di sini, atau klik salah satu contoh di bawah.'
-    }
+  const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; text: string; greeting?: boolean; file?: { fileName: string; url: string } }[]>([
+    { sender: 'bot', text: '', greeting: true }
   ]);
+  const t = useT();
+  const prompts = t.lang === 'en' ? EXAMPLE_PROMPTS_EN : EXAMPLE_PROMPTS;
   const [inputMsg, setInputMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -67,7 +78,8 @@ export default function FloatingChatSimulator({
     try {
       const res = await axios.post('/api/wa/simulate', {
         message: text,
-        senderName: 'Pengguna'
+        senderName: t('Pengguna', 'User'),
+        lang: t.lang
       });
 
       if (res.data?.result?.text) {
@@ -80,7 +92,7 @@ export default function FloatingChatSimulator({
     } catch (e) {
       setMessages((prev) => [
         ...prev,
-        { sender: 'bot', text: 'Gagal memproses simulasi chat.' }
+        { sender: 'bot', text: t('Gagal memproses simulasi chat.', 'Failed to process the simulated chat.') }
       ]);
     } finally {
       setLoading(false);
@@ -101,8 +113,8 @@ export default function FloatingChatSimulator({
               ? 'bg-zinc-800 hover:bg-zinc-750 text-zinc-100 border border-zinc-700'
               : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/50 hover:shadow-emerald-900/70 border border-emerald-400/30'
           }`}
-          title={isOpen ? 'Tutup Simulator Chat' : 'Simulator Chat Bot WhatsApp'}
-          aria-label={isOpen ? 'Tutup Simulator Chat' : 'Simulator Chat Bot WhatsApp'}
+          title={isOpen ? t('Tutup Simulator Chat', 'Close Chat Simulator') : t('Simulator Chat Bot WhatsApp', 'WhatsApp Bot Chat Simulator')}
+          aria-label={isOpen ? t('Tutup Simulator Chat', 'Close Chat Simulator') : t('Simulator Chat Bot WhatsApp', 'WhatsApp Bot Chat Simulator')}
         >
           {isOpen ? (
             <X size={20} weight="bold" className="animate-pop-in" />
@@ -136,14 +148,14 @@ export default function FloatingChatSimulator({
                   <span>ZxWallet</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-zinc-400">AI Pencatat Keuangan</p>
+                <p className="text-[10px] sm:text-[11px] text-zinc-400">{t('AI Pencatat Keuangan', 'AI Finance Tracker')}</p>
               </div>
             </div>
 
             <button
               onClick={onToggle}
               className="p-1.5 text-zinc-400 hover:text-zinc-100 rounded-lg hover:bg-zinc-800 transition cursor-pointer"
-              title="Tutup"
+              title={t('Tutup', 'Close')}
             >
               <Minus size={16} weight="bold" />
             </button>
@@ -165,7 +177,12 @@ export default function FloatingChatSimulator({
                         : 'bg-zinc-900 text-zinc-200 border border-zinc-800 rounded-bl-xs'
                     }`}
                   >
-                    {m.text}
+                    {m.greeting
+                      ? t(
+                          'Halo! Saya bot ZxWallet.\n\nKamu bisa mengetik pengeluaran atau pemasukan langsung di sini, atau klik salah satu contoh di bawah.',
+                          "Hi! I'm the ZxWallet bot.\n\nType an expense or income right here, or tap one of the examples below."
+                        )
+                      : m.text}
                     {m.file && (
                       <a
                         href={m.file.url}
@@ -183,7 +200,7 @@ export default function FloatingChatSimulator({
             {loading && (
               <div className="flex justify-start animate-bubble-in origin-bottom-left">
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs text-zinc-400 animate-pulse">
-                  Bot sedang mencatat...
+                  {t('Bot sedang mencatat...', 'Bot is recording...')}
                 </div>
               </div>
             )}
@@ -193,9 +210,9 @@ export default function FloatingChatSimulator({
           {/* Quick Prompts Carousel */}
           <div className="px-3 py-2 bg-zinc-950/60 border-t border-zinc-800/60 flex items-center space-x-1.5 overflow-x-auto text-[11px] no-scrollbar">
             <span className="text-zinc-500 text-[10px] shrink-0 flex items-center mr-0.5">
-              <Sparkle size={11} className="mr-1 text-amber-400" /> Coba:
+              <Sparkle size={11} className="mr-1 text-amber-400" /> {t('Coba', 'Try')}:
             </span>
-            {EXAMPLE_PROMPTS.map((p, idx) => (
+            {prompts.map((p, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(p)}
@@ -217,7 +234,7 @@ export default function FloatingChatSimulator({
           >
             <input
               type="text"
-              placeholder="Ketik pesan... misal: keluar 35rb soto"
+              placeholder={t('Ketik pesan... misal: keluar 35rb soto', 'Type a message... e.g. spent 35k on lunch')}
               value={inputMsg}
               onChange={(e) => setInputMsg(e.target.value)}
               disabled={loading}
@@ -227,7 +244,7 @@ export default function FloatingChatSimulator({
               type="submit"
               disabled={loading || !inputMsg.trim()}
               className="p-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl transition duration-200 active:scale-90 cursor-pointer shrink-0"
-              title="Kirim pesan"
+              title={t('Kirim pesan', 'Send message')}
             >
               <PaperPlaneTilt size={15} weight="bold" />
             </button>

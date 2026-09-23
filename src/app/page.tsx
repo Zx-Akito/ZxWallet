@@ -16,6 +16,7 @@ import TransactionTable from '../components/TransactionTable';
 import WhatsAppSection from '../components/WhatsAppSection';
 import AddTransactionModal from '../components/AddTransactionModal';
 import AuthModal from '../components/AuthModal';
+import { useT } from '../lib/i18n';
 import { Check, ChatCircleDots } from '@phosphor-icons/react';
 import { User, Transaction, Category, Budget, Summary, CashflowTrend, CategoryBreakdown, WhatsAppStatus } from '../types';
 
@@ -28,6 +29,7 @@ if (typeof window !== 'undefined') {
 }
 
 export default function HomePage() {
+  const t = useT();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   // false until localStorage is read on the client; avoids SSR/client mismatch and a login-screen flash.
   const [authReady, setAuthReady] = useState(false);
@@ -92,12 +94,12 @@ export default function HomePage() {
   const handleAuthSuccess = (user: User) => {
     resetAdvice();
     setCurrentUser(user);
-    showToast(`Selamat datang, ${user.name}!`);
+    showToast(t(`Selamat datang, ${user.name}!`, `Welcome, ${user.name}!`));
   };
 
   const handleLogout = () => {
     clearSession();
-    showToast('Berhasil keluar akun.');
+    showToast(t('Berhasil keluar akun.', 'Signed out.'));
   };
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function HomePage() {
     });
 
     socket.on('transaction:added', (tx: Transaction) => {
-      showToast(`Transaksi baru dicatat: ${tx.category} (Rp ${tx.amount.toLocaleString('id-ID')})`);
+      showToast(t(`Transaksi baru dicatat: ${tx.category} (Rp ${tx.amount.toLocaleString('id-ID')})`, `New transaction: ${t.cat(tx.category)} (Rp ${tx.amount.toLocaleString('id-ID')})`));
       fetchAllData();
     });
 
@@ -225,18 +227,18 @@ export default function HomePage() {
     try {
       await axios.post('/api/budgets', { category, monthly_limit: limit });
       fetchBudgets();
-      showToast('Batas anggaran disimpan.');
+      showToast(t('Batas anggaran disimpan.', 'Budget saved.'));
     } catch (e) {
-      showToast('Gagal menyimpan anggaran.');
+      showToast(t('Gagal menyimpan anggaran.', 'Failed to save budget.'));
     }
   };
 
   const handleDeleteBudget = async (id: number) => {
-    if (!(await confirmDialog('Hapus batas anggaran ini?'))) return;
+    if (!(await confirmDialog(t('Hapus batas anggaran ini?', 'Delete this budget?')))) return;
     try {
       await axios.delete(`/api/budgets/${id}`);
       fetchBudgets();
-      showToast('Anggaran dihapus.');
+      showToast(t('Anggaran dihapus.', 'Budget deleted.'));
     } catch (e) {
       console.error(e);
     }
@@ -246,22 +248,26 @@ export default function HomePage() {
     try {
       await axios.post('/api/transactions', data);
       fetchAllData();
-      showToast('Transaksi baru berhasil dicatat.');
+      showToast(t('Transaksi baru berhasil dicatat.', 'Transaction recorded.'));
     } catch (e) {
-      showToast('Gagal mencatat transaksi.');
+      showToast(t('Gagal mencatat transaksi.', 'Failed to record transaction.'));
     }
   };
 
   const handleDeleteTransaction = async (id: number) => {
-    if (!(await confirmDialog('Hapus transaksi ini?'))) return;
+    if (!(await confirmDialog(t('Hapus transaksi ini?', 'Delete this transaction?')))) return;
     try {
       await axios.delete(`/api/transactions/${id}`);
       fetchAllData();
-      showToast('Transaksi telah dihapus.');
+      showToast(t('Transaksi telah dihapus.', 'Transaction deleted.'));
     } catch (e) {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    document.documentElement.lang = t.lang;
+  }, [t.lang]);
 
   if (!authReady) return <div className="min-h-[100dvh] bg-[#09090b]" />;
 
@@ -276,7 +282,7 @@ export default function HomePage() {
     );
   }
 
-  const botWhatsAppUrl = `https://wa.me/${waStatus?.user?.phone || '6281916633003'}?text=${encodeURIComponent('Halo ZxWallet, cek saldo')}`;
+  const botWhatsAppUrl = `https://wa.me/${waStatus?.user?.phone || '6281916633003'}?text=${encodeURIComponent(t('Halo ZxWallet, cek saldo', 'Hi ZxWallet, check my balance'))}`;
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-400">
@@ -315,17 +321,21 @@ export default function HomePage() {
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3.5 sm:p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="text-xs text-zinc-300 leading-relaxed">
                 <span className="font-semibold text-emerald-400 mr-1.5">ZxWallet AI:</span>
-                Kirim pesan dengan bahasa santai apa saja seperti <em className="text-zinc-100">&quot;tadi jajan bakso 25rb&quot;</em> atau tanya <em className="text-zinc-100">&quot;saldo saya berapa?&quot;</em>, AI akan mengelola dan mencatatnya otomatis.
+                {t.lang === 'en' ? (
+                  <>Send any casual message like <em className="text-zinc-100">&quot;bought meatball soup 25k&quot;</em> or ask <em className="text-zinc-100">&quot;what's my balance?&quot;</em>, and the AI records it for you.</>
+                ) : (
+                  <>Kirim pesan dengan bahasa santai apa saja seperti <em className="text-zinc-100">&quot;tadi jajan bakso 25rb&quot;</em> atau tanya <em className="text-zinc-100">&quot;saldo saya berapa?&quot;</em>, AI akan mengelola dan mencatatnya otomatis.</>
+                )}
               </div>
               <a
                 href={botWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="self-start sm:self-auto shrink-0 flex items-center space-x-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
-                title="Buka Chat di Aplikasi WhatsApp"
+                title={t('Buka Chat di Aplikasi WhatsApp', 'Open chat in the WhatsApp app')}
               >
                 <ChatCircleDots size={15} weight="fill" />
-                <span>Buka Chat WhatsApp &rarr;</span>
+                <span>{t('Buka Chat WhatsApp', 'Open WhatsApp Chat')} &rarr;</span>
               </a>
             </div>
 
@@ -416,7 +426,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="hidden md:block border-t border-zinc-800/80 py-6 text-center text-xs text-zinc-500">
-        ZxWallet &bull; Bot WhatsApp Pengelola Keuangan Sederhana &amp; Akurat &copy; 2026.
+        ZxWallet &bull; {t('Bot WhatsApp Pengelola Keuangan Sederhana & Akurat', 'Simple & Accurate WhatsApp Finance Bot')} &copy; 2026.
       </footer>
     </div>
   );

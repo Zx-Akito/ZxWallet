@@ -35,7 +35,7 @@ export function parseAmount(amountStr: string | number): number | null {
   return Math.round(num * multiplier);
 }
 
-export async function handleMessage(rawMessage: string, senderMeta: { senderPhone?: string | null; senderName?: string | null; userId?: number | null } = {}) {
+export async function handleMessage(rawMessage: string, senderMeta: { senderPhone?: string | null; senderName?: string | null; userId?: number | null; lang?: 'id' | 'en' } = {}) {
   const message = (rawMessage || '').trim();
   if (!message) return null;
 
@@ -56,7 +56,7 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
   };
 
   try {
-    const aiResult = await parseWithAI(message, financialContext);
+    const aiResult = await parseWithAI(message, financialContext, senderMeta.lang);
 
     if (aiResult) {
       if (
@@ -87,13 +87,14 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
         const format = aiResult.export?.format === 'pdf' ? 'pdf' : 'xlsx';
         const file = await buildReport(userId, {
           format,
+          lang: aiResult.export?.language === 'en' ? 'en' : 'id',
           startDate: aiResult.export?.startDate,
           endDate: aiResult.export?.endDate
         });
         return {
           type: 'file',
           file,
-          text: aiResult.reply || `📎 Berikut laporan keuangan kamu dalam format ${format.toUpperCase()}.`
+          text: aiResult.reply || `📎 ${format.toUpperCase()}`
         };
       }
 
@@ -111,6 +112,8 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
   // Fallback
   return {
     type: 'fallback',
-    text: `Halo! Saya ZxWallet AI. Ketik pesan pengeluaran, pemasukan, atau tanya saldo kapan saja ya!`
+    text: senderMeta.lang === 'en'
+      ? `Hi! I'm ZxWallet AI. Send me an expense, income, or ask for your balance anytime!`
+      : `Halo! Saya ZxWallet AI. Ketik pesan pengeluaran, pemasukan, atau tanya saldo kapan saja ya!`
   };
 }

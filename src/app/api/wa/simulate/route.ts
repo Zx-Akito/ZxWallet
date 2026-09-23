@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const user = getUserFromRequest(req);
     if (!user) return unauthorized();
     const body = await req.json();
-    const { message, senderName = 'Simulated User' } = body;
+    const { message, senderName = 'Simulated User', lang } = body;
 
     if (!message) {
       return NextResponse.json({ success: false, error: 'Pesan tidak boleh kosong' }, { status: 400 });
@@ -20,7 +20,8 @@ export async function POST(req: Request) {
     const response = await handleMessage(message, {
       senderPhone,
       senderName: sName,
-      userId: user?.id
+      userId: user?.id,
+      lang: lang === 'en' || lang === 'id' ? lang : undefined
     });
 
     repo.logChat({

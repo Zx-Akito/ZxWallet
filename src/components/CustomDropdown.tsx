@@ -22,7 +22,7 @@ export default function CustomDropdown({
   value,
   onChange,
   options = [],
-  placeholder = 'Pilih Opsi',
+  placeholder = '-',
   className = '',
   menuClassName = ''
 }: CustomDropdownProps) {

@@ -7,6 +7,7 @@ import {
 } from '@phosphor-icons/react';
 import axios from 'axios';
 import { create } from 'zustand';
+import { useLangStore, useT, Lang } from '../lib/i18n';
 
 interface Recommendation {
   title: string;
@@ -24,23 +25,30 @@ interface FinancialAdvice {
 // Cache advice across tab switches; cleared on login/logout via resetAdvice().
 export const useAdviceStore = create<{
   advice: FinancialAdvice | null;
+  adviceLang: Lang | null;
   loading: boolean;
+  loadingLang: Lang | null;
   fetchAdvice: () => Promise<void>;
 }>((set, get) => ({
   advice: null,
+  adviceLang: null,
   loading: false,
+  loadingLang: null,
   fetchAdvice: async () => {
-    if (get().loading) return;
-    set({ loading: true });
+    const lang = useLangStore.getState().lang;
+    // Skip only duplicate requests for the same language; a language switch must still refetch.
+    if (get().loading && get().loadingLang === lang) return;
+    set({ loading: true, loadingLang: lang });
     try {
-      const res = await axios.get('/api/ai/advice');
-      if (res.data?.success) {
-        set({ advice: res.data.data });
+      const res = await axios.get('/api/ai/advice', { params: { lang } });
+      // Drop a stale response if the user switched language while it was in flight.
+      if (res.data?.success && useLangStore.getState().lang === lang) {
+        set({ advice: res.data.data, adviceLang: lang });
       }
     } catch (e) {
       console.error('Failed to load AI advice:', e);
     } finally {
-      set({ loading: false });
+      if (get().loadingLang === lang) set({ loading: false, loadingLang: null });
     }
   }
 }));
@@ -48,11 +56,14 @@ export const useAdviceStore = create<{
 export const resetAdvice = () => useAdviceStore.setState({ advice: null });
 
 export default function AiFinancialInsights() {
-  const { advice, loading, fetchAdvice } = useAdviceStore();
+  const { advice, adviceLang, loading, fetchAdvice } = useAdviceStore();
+  const t = useT();
 
+  // Re-run the analysis when there is none yet or it was written in the other language.
   useEffect(() => {
-    if (!useAdviceStore.getState().advice) fetchAdvice();
-  }, [fetchAdvice]);
+    const { advice, adviceLang } = useAdviceStore.getState();
+    if (!advice || adviceLang !== t.lang) fetchAdvice();
+  }, [fetchAdvice, t.lang]);
 
   if (!advice && !loading) return null;
 
@@ -67,13 +78,13 @@ export default function AiFinancialInsights() {
           <div>
             <div className="flex items-center space-x-2">
               <h3 className="text-xs sm:text-sm font-semibold text-zinc-100">
-                Analisis Finansial Cerdas AI
+                {t('Analisis Finansial Cerdas AI', 'Smart AI Financial Analysis')}
               </h3>
               <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40 uppercase">
                 Gemini
               </span>
             </div>
-            <p className="text-[11px] text-zinc-400">Evaluasi kesehatan kas dan rekomendasi otomatis</p>
+            <p className="text-[11px] text-zinc-400">{t('Evaluasi kesehatan kas dan rekomendasi otomatis', 'Cash health check and automatic recommendations')}</p>
           </div>
         </div>
 
@@ -81,16 +92,16 @@ export default function AiFinancialInsights() {
           onClick={fetchAdvice}
           disabled={loading}
           className="p-1.5 text-zinc-400 hover:text-zinc-100 rounded-lg hover:bg-zinc-800 transition cursor-pointer shrink-0"
-          title="Analisis ulang dengan AI"
+          title={t('Analisis ulang dengan AI', 'Re-run AI analysis')}
         >
           <ArrowsClockwise size={14} className={loading ? 'animate-spin text-emerald-400' : ''} />
         </button>
       </div>
 
-      {loading && !advice ? (
+      {loading && (!advice || adviceLang !== t.lang) ? (
         <div className="py-6 text-center space-y-2">
           <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs text-zinc-400">Gemini sedang menganalisis transaksi kas Anda...</p>
+          <p className="text-xs text-zinc-400">{t('Gemini sedang menganalisis transaksi kas Anda...', 'Gemini is analyzing your transactions...')}</p>
         </div>
       ) : advice ? (
         <div className="space-y-3">
@@ -98,7 +109,7 @@ export default function AiFinancialInsights() {
           <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-zinc-400">Skor Kesehatan Kas:</span>
+                <span className="text-xs text-zinc-400">{t('Skor Kesehatan Kas:', 'Cash Health Score:')}</span>
                 <span className="font-bold text-sm text-emerald-400 font-mono">
                   {advice.healthScore} / 100
                 </span>
@@ -129,7 +140,7 @@ export default function AiFinancialInsights() {
                           : 'bg-zinc-800 text-zinc-400'
                       }`}
                     >
-                      {rec.priority === 'high' ? 'Penting' : 'Saran'}
+                      {rec.priority === 'high' ? t('Penting', 'Important') : t('Saran', 'Tip')}
                     </span>
                   </div>
                   <p className="text-[11px] text-zinc-400 leading-relaxed">{rec.advice}</p>

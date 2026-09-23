@@ -44,7 +44,8 @@ export async function callOmni(messages: any[], { temperature = 0.2, responseFor
   }
 }
 
-export async function parseWithAI(userMessage: string, financialContext: any = {}) {
+// lang forces the reply language (web simulator); without it the AI follows the message's language (WhatsApp).
+export async function parseWithAI(userMessage: string, financialContext: any = {}, lang?: 'id' | 'en') {
   const { 
     summary = {}, 
     categories = [], 
@@ -107,6 +108,7 @@ Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam
   } | null,
   "export": {
     "format": "xlsx" | "pdf",
+    "language": "id" | "en",
     "startDate": "YYYY-MM-DD" | null,
     "endDate": "YYYY-MM-DD" | null
   } | null,
@@ -134,11 +136,18 @@ Petunjuk Respons:
    - Set intent="export", transaction=null
    - Isi export.format: "pdf" jika minta PDF, selain itu "xlsx" (Excel/spreadsheet/export tanpa format).
    - Isi export.startDate & export.endDate sesuai periode yang diminta, dihitung dari tanggal hari ini (misal "bulan ini" = tanggal 1 bulan ini s/d hari ini, "bulan lalu" = tanggal 1 s/d tanggal terakhir bulan lalu). Jika "semua"/"keseluruhan"/tanpa periode, keduanya null.
+   - Isi export.language sesuai bahasa pesan pengguna ("en" untuk bahasa Inggris, selain itu "id").
    - Di field reply, tulis caption singkat untuk file yang dikirim (sebut format dan periodenya).
    - Permintaan rekap TANPA menyebut file/Excel/PDF/export tetap ikuti poin 3 (jawab teks).
 7. Jika sapaan/bantuan/menu ("halo", "p", "menu", "help"):
    - Set intent="general", transaction=null
    - Sapa dengan ramah, berikan gambaran singkat saldo saat ini dan contoh-contoh perintah yang bisa langsung diketik.
+
+BAHASA: ${lang
+    ? `Tulis field reply WAJIB dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}, apa pun bahasa pesan pengguna. Isi export.language dengan "${lang}".`
+    : 'Tulis field reply dalam bahasa yang sama dengan pesan pengguna. Jika pengguna menulis dalam bahasa Inggris, balas dalam bahasa Inggris; jika bahasa Indonesia, balas dalam bahasa Indonesia.'}
+Jika reply berbahasa Inggris, terjemahkan juga nama kategori, label, dan istilah di dalam teks reply ke bahasa Inggris (misal "Makanan & Minuman" ditulis "Food & Drinks"). Field transaction.category TETAP memakai nama Kategori Kas di atas apa adanya (jangan diterjemahkan).
+Pesan bahasa Inggris juga berlaku untuk semua petunjuk di atas (misal "spent 25k on lunch" = transaksi, "balance" = cek saldo, "send excel of all transactions" = export).
 
 PENTING: Keluarkan HANYA objek JSON yang valid. Tidak boleh ada markdown block atau teks tambahan di luar JSON.`;
 
@@ -163,7 +172,7 @@ PENTING: Keluarkan HANYA objek JSON yang valid. Tidak boleh ada markdown block a
   }
 }
 
-export async function generateFinancialAdvice(summary: Summary, categoryBreakdown: CategoryBreakdown[], budgets: Budget[]) {
+export async function generateFinancialAdvice(summary: Summary, categoryBreakdown: CategoryBreakdown[], budgets: Budget[], lang: 'id' | 'en' = 'id') {
   const prompt = `Analisis kondisi keuangan pengguna berikut dan berikan 3 poin rekomendasi cerdas, konkret, dan realistis untuk mengoptimalkan pengeluaran bulan ini.
 
 Data Keuangan:
@@ -182,7 +191,7 @@ ${budgets.map(b => `- ${b.category}: Rp ${b.spent.toLocaleString('id-ID')} / ${b
 Kembalikan format JSON:
 {
   "healthScore": number (1-100),
-  "healthStatus": "Sangat Sehat" | "Cukup Sehat" | "Perlu Perhatian" | "Kritis",
+  "healthStatus": ${lang === 'en' ? '"Very Healthy" | "Fairly Healthy" | "Needs Attention" | "Critical"' : '"Sangat Sehat" | "Cukup Sehat" | "Perlu Perhatian" | "Kritis"'},
   "summary": string (1-2 kalimat ringkasan kondisi keuangan),
   "recommendations": [
     {
@@ -191,7 +200,9 @@ Kembalikan format JSON:
       "priority": "high" | "medium" | "low"
     }
   ]
-}`;
+}
+
+Tulis semua teks (healthStatus, summary, title, advice) dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}.`;
 
   try {
     const rawContent = await callOmni([

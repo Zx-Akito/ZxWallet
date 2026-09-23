@@ -14,6 +14,7 @@ import {
 import { formatIDR, formatDate } from '../utils/formatters';
 import CustomDropdown from './CustomDropdown';
 import { Transaction, Category } from '../types';
+import { useT } from '../lib/i18n';
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -43,6 +44,7 @@ export default function TransactionTable({
   categories = [],
   onDelete
 }: TransactionTableProps) {
+  const t = useT();
   const totalPages = Math.ceil(total / limit) || 1;
 
   return (
@@ -57,7 +59,7 @@ export default function TransactionTable({
               !filters.type ? 'bg-zinc-800 text-white shadow-xs' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Semua ({total})
+            {t('Semua', 'All')} ({total})
           </button>
           <button
             onClick={() => onFilterChange({ ...filters, type: 'income', page: 1 })}
@@ -65,7 +67,7 @@ export default function TransactionTable({
               filters.type === 'income' ? 'bg-green-950/60 text-green-400 border border-green-800/40' : 'text-zinc-400 hover:text-green-400'
             }`}
           >
-            Pemasukan
+            {t('Pemasukan', 'Income')}
           </button>
           <button
             onClick={() => onFilterChange({ ...filters, type: 'expense', page: 1 })}
@@ -73,7 +75,7 @@ export default function TransactionTable({
               filters.type === 'expense' ? 'bg-rose-950/60 text-rose-400 border border-rose-800/40' : 'text-zinc-400 hover:text-rose-400'
             }`}
           >
-            Pengeluaran
+            {t('Pengeluaran', 'Expenses')}
           </button>
         </div>
 
@@ -82,13 +84,13 @@ export default function TransactionTable({
           <CustomDropdown
             value={filters.category || ''}
             onChange={(val) => onFilterChange({ ...filters, category: val, page: 1 })}
-            placeholder="Semua Kategori"
+            placeholder={t('Semua Kategori', 'All Categories')}
             className="w-36 sm:w-44 shrink-0"
             options={[
-              { value: '', label: 'Semua Kategori' },
+              { value: '', label: t('Semua Kategori', 'All Categories') },
               ...categories.map((c) => ({
                 value: c.name,
-                label: c.name,
+                label: t.cat(c.name),
                 color: c.color
               }))
             ]}
@@ -98,7 +100,7 @@ export default function TransactionTable({
             <MagnifyingGlass size={14} className="absolute left-3 top-2.5 sm:top-2 text-zinc-500" />
             <input
               type="text"
-              placeholder="Cari transaksi..."
+              placeholder={t('Cari transaksi...', 'Search transactions...')}
               value={filters.search || ''}
               onChange={(e) => onFilterChange({ ...filters, search: e.target.value, page: 1 })}
               className="w-full pl-8 pr-3 py-2 sm:py-1.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-200 placeholder:text-zinc-500 focus:border-emerald-500/50"
@@ -111,7 +113,7 @@ export default function TransactionTable({
       <div className="divide-y divide-zinc-800/60">
         {transactions.length === 0 ? (
           <div className="py-12 text-center text-zinc-500 text-xs">
-            Belum ada data transaksi yang sesuai.
+            {t('Belum ada data transaksi yang sesuai.', 'No matching transactions.')}
           </div>
         ) : (
           transactions.map((tx) => {
@@ -140,7 +142,7 @@ export default function TransactionTable({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center space-x-1.5 flex-wrap">
                       <span className="font-semibold text-xs sm:text-sm text-zinc-200 truncate">
-                        {tx.category}
+                        {t.cat(tx.category)}
                       </span>
                       {tx.source === 'whatsapp' || tx.source === 'whatsapp_ai' ? (
                         <span className="inline-flex items-center space-x-1 px-1.5 py-0.2 rounded-full bg-emerald-950/40 text-emerald-400 border border-emerald-800/40 text-[9px] sm:text-[10px]">
@@ -155,7 +157,7 @@ export default function TransactionTable({
                       )}
                     </div>
                     <div className="text-[11px] text-zinc-400 mt-0.5 truncate">
-                      {tx.description || 'Tidak ada catatan'} &bull; <span className="text-zinc-500">{formatDate(tx.date)}</span>
+                      {tx.description || t('Tidak ada catatan', 'No note')} &bull; <span className="text-zinc-500">{formatDate(tx.date, t.lang)}</span>
                     </div>
                   </div>
                 </div>
@@ -171,14 +173,14 @@ export default function TransactionTable({
                       {isIncome ? '+' : '-'} {formatIDR(tx.amount)}
                     </div>
                     <div className="text-[10px] sm:text-[11px] text-zinc-500 hidden sm:block">
-                      {isIncome ? 'Pemasukan' : 'Pengeluaran'}
+                      {isIncome ? t('Pemasukan', 'Income') : t('Pengeluaran', 'Expense')}
                     </div>
                   </div>
 
                   <button
                     onClick={() => onDelete(tx.id)}
                     className="p-1.5 text-zinc-500 hover:text-rose-400 rounded-lg hover:bg-zinc-800 transition cursor-pointer"
-                    title="Hapus transaksi"
+                    title={t('Hapus transaksi', 'Delete transaction')}
                   >
                     <Trash size={14} className="sm:w-4 sm:h-4" />
                   </button>
@@ -193,7 +195,7 @@ export default function TransactionTable({
       {totalPages > 1 && (
         <div className="p-3 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
           <div>
-            Hal {page} / {totalPages}
+            {t('Hal', 'Page')} {page} / {totalPages}
           </div>
           <div className="flex items-center space-x-1.5">
             <button

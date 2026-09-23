@@ -9,6 +9,7 @@ import {
   ChatCircleDots 
 } from '@phosphor-icons/react';
 import { WhatsAppStatus } from '../types';
+import { useT } from '../lib/i18n';
 
 interface BottomNavProps {
   activeTab: string;
@@ -18,6 +19,7 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ activeTab, setActiveTab, onOpenAdd, waStatus }: BottomNavProps) {
+  const t = useT();
   const isConnected = waStatus?.status === 'connected';
   const isQR = waStatus?.status === 'qr_ready';
 
@@ -32,7 +34,7 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenAdd, waStatus
           }`}
         >
           <Receipt size={20} weight={activeTab === 'overview' ? 'fill' : 'regular'} />
-          <span className="text-[10px] mt-1 font-medium">Transaksi</span>
+          <span className="text-[10px] mt-1 font-medium">{t('Transaksi', 'Transactions')}</span>
         </button>
 
         {/* 2. Grafik & Analisis */}
@@ -43,7 +45,7 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenAdd, waStatus
           }`}
         >
           <ChartLineUp size={20} weight={activeTab === 'analytics' ? 'bold' : 'regular'} />
-          <span className="text-[10px] mt-1 font-medium">Grafik</span>
+          <span className="text-[10px] mt-1 font-medium">{t('Grafik', 'Charts')}</span>
         </button>
 
         {/* 3. Center Raised (+) Catat Button */}
@@ -51,7 +53,7 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenAdd, waStatus
           <button
             onClick={onOpenAdd}
             className="w-11 h-11 rounded-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 flex items-center justify-center shadow-lg shadow-emerald-500/30 active:scale-95 transition cursor-pointer -mt-4 border-2 border-zinc-950"
-            title="Catat Transaksi Cepat"
+            title={t('Catat Transaksi Cepat', 'Quick Add Transaction')}
           >
             <Plus size={22} weight="bold" />
           </button>
@@ -65,7 +67,7 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenAdd, waStatus
           }`}
         >
           <Target size={20} weight={activeTab === 'budget' ? 'fill' : 'regular'} />
-          <span className="text-[10px] mt-1 font-medium">Anggaran</span>
+          <span className="text-[10px] mt-1 font-medium">{t('Anggaran', 'Budgets')}</span>
         </button>
 
         {/* 5. WhatsApp Bot */}

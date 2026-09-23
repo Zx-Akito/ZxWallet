@@ -15,6 +15,7 @@ import {
 import { ChartLineUp, ChartPieSlice } from '@phosphor-icons/react';
 import { formatIDR } from '../utils/formatters';
 import { CashflowTrend, CategoryBreakdown } from '../types';
+import { useT } from '../lib/i18n';
 
 const PALETTE = [
   '#10b981', '#0ea5e9', '#f59e0b', '#ef4444', '#8b5cf6',
@@ -26,19 +27,23 @@ interface ChartsProps {
   categoryBreakdown: CategoryBreakdown[];
 }
 
-export default function Charts({ cashflow = [], categoryBreakdown = [] }: ChartsProps) {
+export default function Charts({ cashflow = [], categoryBreakdown: rawBreakdown = [] }: ChartsProps) {
+  const t = useT();
+  const shortDate = (d: string) =>
+    new Date(d).toLocaleDateString(t.lang === 'en' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short' });
+  const categoryBreakdown = rawBreakdown.map((c) => ({ ...c, category: t.cat(c.category) }));
   const CustomCashflowTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const inc = payload[0]?.value || 0;
       const exp = payload[1]?.value || 0;
       return (
         <div className="bg-zinc-900 border border-zinc-700 p-2.5 sm:p-3 rounded-xl shadow-xl text-xs font-mono">
-          <p className="font-semibold text-zinc-200 mb-1.5">{label}</p>
+          <p className="font-semibold text-zinc-200 mb-1.5">{shortDate(label)}</p>
           <div className="space-y-1">
-            <p className="text-green-400">Masuk: {formatIDR(inc)}</p>
-            <p className="text-rose-400">Keluar: {formatIDR(exp)}</p>
+            <p className="text-green-400">{t('Masuk', 'In')}: {formatIDR(inc)}</p>
+            <p className="text-rose-400">{t('Keluar', 'Out')}: {formatIDR(exp)}</p>
             <p className="text-zinc-300 pt-1 border-t border-zinc-800">
-              Sisa Kas: {formatIDR(inc - exp)}
+              {t('Sisa Kas', 'Net')}: {formatIDR(inc - exp)}
             </p>
           </div>
         </div>
@@ -57,16 +62,16 @@ export default function Charts({ cashflow = [], categoryBreakdown = [] }: Charts
               <ChartLineUp size={18} />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-semibold text-zinc-100">Grafik Arus Kas Harian</h3>
-              <p className="text-[11px] text-zinc-400">Pemasukan vs Pengeluaran 14 hari terakhir</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-zinc-100">{t('Grafik Arus Kas Harian', 'Daily Cash Flow')}</h3>
+              <p className="text-[11px] text-zinc-400">{t('Pemasukan vs Pengeluaran 14 hari terakhir', 'Income vs expenses, last 14 days')}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3 text-xs self-start sm:self-auto">
             <span className="flex items-center text-green-400">
-              <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5"></span> Pemasukan
+              <span className="w-2 h-2 rounded-full bg-green-500 mr-1.5"></span> {t('Pemasukan', 'Income')}
             </span>
             <span className="flex items-center text-rose-400">
-              <span className="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span> Pengeluaran
+              <span className="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span> {t('Pengeluaran', 'Expenses')}
             </span>
           </div>
         </div>
@@ -74,7 +79,7 @@ export default function Charts({ cashflow = [], categoryBreakdown = [] }: Charts
         <div className="h-52 sm:h-64 w-full">
           {cashflow.length === 0 ? (
             <div className="h-full flex items-center justify-center text-zinc-500 text-xs font-mono">
-              Belum ada data arus kas
+              {t('Belum ada data arus kas', 'No cash flow data yet')}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -90,7 +95,8 @@ export default function Charts({ cashflow = [], categoryBreakdown = [] }: Charts
                   </linearGradient>
                 </defs>
                 <XAxis 
-                  dataKey="displayDate" 
+                  dataKey="date"
+                  tickFormatter={shortDate} 
                   stroke="#71717a" 
                   fontSize={10} 
                   tickLine={false} 
@@ -135,15 +141,15 @@ export default function Charts({ cashflow = [], categoryBreakdown = [] }: Charts
               <ChartPieSlice size={18} />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-semibold text-zinc-100">Porsi Pengeluaran</h3>
-              <p className="text-[11px] text-zinc-400">Pembagian belanja bulan ini</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-zinc-100">{t('Porsi Pengeluaran', 'Spending Share')}</h3>
+              <p className="text-[11px] text-zinc-400">{t('Pembagian belanja bulan ini', 'How you spent this month')}</p>
             </div>
           </div>
 
           <div className="h-48 sm:h-56 w-full relative my-auto">
             {categoryBreakdown.length === 0 ? (
               <div className="h-full flex items-center justify-center text-zinc-500 text-xs">
-                Belum ada data belanja bulan ini
+                {t('Belum ada data belanja bulan ini', 'No spending data this month')}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -183,10 +189,10 @@ export default function Charts({ cashflow = [], categoryBreakdown = [] }: Charts
 
         {/* Detailed Breakdown List */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3.5 sm:p-5">
-          <h3 className="text-xs sm:text-sm font-semibold text-zinc-100 mb-2.5">Rincian Pos Belanja</h3>
+          <h3 className="text-xs sm:text-sm font-semibold text-zinc-100 mb-2.5">{t('Rincian Pos Belanja', 'Spending Breakdown')}</h3>
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {categoryBreakdown.length === 0 ? (
-              <p className="text-xs text-zinc-500 py-6 text-center">Belum ada catatan</p>
+              <p className="text-xs text-zinc-500 py-6 text-center">{t('Belum ada catatan', 'No records yet')}</p>
             ) : (
               categoryBreakdown.map((cat, idx) => (
                 <div key={idx} className="p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800/80 flex items-center justify-between text-xs">

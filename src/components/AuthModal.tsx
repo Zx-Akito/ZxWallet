@@ -13,6 +13,8 @@ import {
 } from '@phosphor-icons/react';
 import axios from 'axios';
 import { User as UserType } from '../types';
+import { useT } from '../lib/i18n';
+import LangToggle from './LangToggle';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -34,6 +36,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [debugOtp, setDebugOtp] = useState('');
+  const t = useT();
 
   if (!isOpen) return null;
 
@@ -49,11 +52,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone) {
-      setErrorMsg('Nomor WhatsApp wajib diisi');
+      setErrorMsg(t('Nomor WhatsApp wajib diisi', 'WhatsApp number is required'));
       return;
     }
     if (mode === 'register' && !name) {
-      setErrorMsg('Nama lengkap wajib diisi');
+      setErrorMsg(t('Nama lengkap wajib diisi', 'Full name is required'));
       return;
     }
 
@@ -75,7 +78,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
         setStep(2);
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Gagal mengirim kode OTP WhatsApp');
+      setErrorMsg(err.response?.data?.error || t('Gagal mengirim kode OTP WhatsApp', 'Failed to send WhatsApp OTP code'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +87,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp || !password) {
-      setErrorMsg('Kode OTP dan password wajib diisi');
+      setErrorMsg(t('Kode OTP dan password wajib diisi', 'OTP code and password are required'));
       return;
     }
 
@@ -107,7 +110,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
         onClose();
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Pendaftaran gagal');
+      setErrorMsg(err.response?.data?.error || t('Pendaftaran gagal', 'Registration failed'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +119,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone || !password) {
-      setErrorMsg('Nomor WhatsApp dan password wajib diisi');
+      setErrorMsg(t('Nomor WhatsApp dan password wajib diisi', 'WhatsApp number and password are required'));
       return;
     }
 
@@ -137,7 +140,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
         onClose();
       }
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.error || 'Nomor WhatsApp atau password salah');
+      setErrorMsg(err.response?.data?.error || t('Nomor WhatsApp atau password salah', 'Wrong WhatsApp number or password'));
     } finally {
       setLoading(false);
     }
@@ -163,17 +166,20 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
 
         {/* Header */}
         <div className="mb-5">
-          <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-xs mb-1">
-            <ShieldCheck size={16} weight="fill" />
-            <span>AKUN PERSONAL ZXWALLET</span>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-xs">
+              <ShieldCheck size={16} weight="fill" />
+              <span>{t('AKUN PERSONAL ZXWALLET', 'ZXWALLET PERSONAL ACCOUNT')}</span>
+            </div>
+            {!dismissible && <LangToggle />}
           </div>
           <h3 className="text-lg font-bold text-zinc-100 tracking-tight">
-            {mode === 'login' ? 'Masuk ke Akun Anda' : 'Daftar Akun Baru'}
+            {mode === 'login' ? t('Masuk ke Akun Anda', 'Sign in to Your Account') : t('Daftar Akun Baru', 'Create a New Account')}
           </h3>
           <p className="text-xs text-zinc-400 mt-1">
             {mode === 'login'
-              ? 'Kelola buku kas pribadi Anda secara terisolasi dan aman.'
-              : 'Verifikasi kepemilikan nomor WhatsApp aktif untuk membuat akun.'}
+              ? t('Kelola buku kas pribadi Anda secara terisolasi dan aman.', 'Manage your personal cash book privately and securely.')
+              : t('Verifikasi kepemilikan nomor WhatsApp aktif untuk membuat akun.', 'Verify an active WhatsApp number you own to create an account.')}
           </p>
         </div>
 
@@ -191,7 +197,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Masuk (Login)
+            {t('Masuk (Login)', 'Sign in')}
           </button>
           <button
             type="button"
@@ -205,7 +211,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Daftar Akun
+            {t('Daftar Akun', 'Sign up')}
           </button>
         </div>
 
@@ -226,7 +232,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
 
         {debugOtp && (
           <div className="mb-3.5 p-2.5 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-300 text-[11px] font-mono">
-            💡 Kode OTP Pengujian: <b className="text-white text-xs">{debugOtp}</b>
+            💡 {t('Kode OTP Pengujian', 'Test OTP code')}: <b className="text-white text-xs">{debugOtp}</b>
           </div>
         )}
 
@@ -234,13 +240,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="space-y-3.5">
             <div>
-              <label className="block text-xs text-zinc-300 mb-1 font-medium">Nomor WhatsApp</label>
+              <label className="block text-xs text-zinc-300 mb-1 font-medium">{t('Nomor WhatsApp', 'WhatsApp Number')}</label>
               <div className="relative">
                 <DeviceMobile size={15} className="absolute left-3 top-2.5 text-zinc-500" />
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: 08123456789 atau 628123456789"
+                  placeholder={t('Contoh: 08123456789 atau 628123456789', 'e.g. 08123456789 or 628123456789')}
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full pl-8.5 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50 font-mono"
@@ -255,7 +261,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                 <input
                   type="password"
                   required
-                  placeholder="Masukkan password Anda"
+                  placeholder={t('Masukkan password Anda', 'Enter your password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-8.5 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -268,7 +274,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
               disabled={loading}
               className="w-full py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white transition cursor-pointer shadow-sm shadow-emerald-900/40 mt-2"
             >
-              {loading ? 'Memverifikasi...' : 'Masuk ke Buku Kas'}
+              {loading ? t('Memverifikasi...', 'Verifying...') : t('Masuk ke Buku Kas', 'Sign in')}
             </button>
           </form>
         )}
@@ -279,13 +285,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
             {step === 1 ? (
               <form onSubmit={handleSendOtp} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs text-zinc-300 mb-1 font-medium">Nama Lengkap</label>
+                  <label className="block text-xs text-zinc-300 mb-1 font-medium">{t('Nama Lengkap', 'Full Name')}</label>
                   <div className="relative">
                     <User size={15} className="absolute left-3 top-2.5 text-zinc-500" />
                     <input
                       type="text"
                       required
-                      placeholder="Nama Anda"
+                      placeholder={t('Nama Anda', 'Your name')}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full pl-8.5 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -295,21 +301,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
 
                 <div>
                   <label className="block text-xs text-zinc-300 mb-1 font-medium">
-                    Nomor WhatsApp (Harus Aktif)
+                    {t('Nomor WhatsApp (Harus Aktif)', 'WhatsApp Number (Must Be Active)')}
                   </label>
                   <div className="relative">
                     <DeviceMobile size={15} className="absolute left-3 top-2.5 text-zinc-500" />
                     <input
                       type="text"
                       required
-                      placeholder="Contoh: 081234567890"
+                      placeholder={t('Contoh: 081234567890', 'e.g. 081234567890')}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full pl-8.5 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50 font-mono"
                     />
                   </div>
                   <p className="text-[10px] text-zinc-500 mt-1">
-                    Sistem akan memverifikasi nomor ini aktif di WhatsApp dan mengirimkan kode OTP.
+                    {t('Sistem akan memverifikasi nomor ini aktif di WhatsApp dan mengirimkan kode OTP.', 'We will check that this number is active on WhatsApp and send an OTP code.')}
                   </p>
                 </div>
 
@@ -319,31 +325,31 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                   className="w-full py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white transition cursor-pointer shadow-sm shadow-emerald-900/40 flex items-center justify-center space-x-1.5"
                 >
                   <PaperPlaneTilt size={14} weight="bold" />
-                  <span>{loading ? 'Memeriksa WhatsApp...' : 'Kirim Kode OTP ke WhatsApp'}</span>
+                  <span>{loading ? t('Memeriksa WhatsApp...', 'Checking WhatsApp...') : t('Kirim Kode OTP ke WhatsApp', 'Send OTP Code to WhatsApp')}</span>
                 </button>
               </form>
             ) : (
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-center justify-between">
-                  <span>Nomor WA: <b className="text-white font-mono">{phone}</b></span>
+                  <span>{t('Nomor WA', 'WA Number')}: <b className="text-white font-mono">{phone}</b></span>
                   <button
                     type="button"
                     onClick={() => setStep(1)}
                     className="text-emerald-400 hover:underline text-[11px] cursor-pointer"
                   >
-                    Ubah
+                    {t('Ubah', 'Change')}
                   </button>
                 </div>
 
                 <div>
                   <label className="block text-xs text-zinc-300 mb-1 font-medium">
-                    Kode OTP WhatsApp (6 Digit)
+                    {t('Kode OTP WhatsApp (6 Digit)', 'WhatsApp OTP Code (6 Digits)')}
                   </label>
                   <input
                     type="text"
                     required
                     maxLength={6}
-                    placeholder="Masukkan 6 angka OTP"
+                    placeholder={t('Masukkan 6 angka OTP', 'Enter the 6-digit OTP')}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-sm font-mono tracking-widest text-center text-emerald-400 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -351,13 +357,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                 </div>
 
                 <div>
-                  <label className="block text-xs text-zinc-300 mb-1 font-medium">Buat Password Akun</label>
+                  <label className="block text-xs text-zinc-300 mb-1 font-medium">{t('Buat Password Akun', 'Create Account Password')}</label>
                   <div className="relative">
                     <Lock size={15} className="absolute left-3 top-2.5 text-zinc-500" />
                     <input
                       type="password"
                       required
-                      placeholder="Minimal 6 karakter"
+                      placeholder={t('Minimal 6 karakter', 'At least 6 characters')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-8.5 pr-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -370,7 +376,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
                   disabled={loading}
                   className="w-full py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white transition cursor-pointer shadow-sm shadow-emerald-900/40"
                 >
-                  {loading ? 'Mendaftarkan...' : 'Selesaikan Pendaftaran Akun'}
+                  {loading ? t('Mendaftarkan...', 'Registering...') : t('Selesaikan Pendaftaran Akun', 'Complete Registration')}
                 </button>
               </form>
             )}

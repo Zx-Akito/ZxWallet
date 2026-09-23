@@ -9,12 +9,14 @@ import {
 } from '@phosphor-icons/react';
 import { formatIDR } from '../utils/formatters';
 import { Summary } from '../types';
+import { useT } from '../lib/i18n';
 
 interface StatCardsProps {
   summary: Summary | null;
 }
 
 export default function StatCards({ summary }: StatCardsProps) {
+  const t = useT();
   if (!summary) return null;
 
   return (
@@ -22,7 +24,7 @@ export default function StatCards({ summary }: StatCardsProps) {
       {/* 1. Total Saldo */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:p-4.5 hover:border-zinc-700/70 transition flex flex-col justify-between">
         <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
-          <span className="truncate pr-1">Total Saldo</span>
+          <span className="truncate pr-1">{t('Total Saldo', 'Total Balance')}</span>
           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
             <Wallet size={14} className="sm:w-4 sm:h-4" />
           </div>
@@ -32,7 +34,7 @@ export default function StatCards({ summary }: StatCardsProps) {
             {formatIDR(summary.totalBalance)}
           </div>
           <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-zinc-400 truncate">
-            {summary.totalBalance >= 0 ? 'Surplus kas aman' : 'Defisit kas'}
+            {summary.totalBalance >= 0 ? t('Surplus kas aman', 'Healthy surplus') : t('Defisit kas', 'Cash deficit')}
           </p>
         </div>
       </div>
@@ -40,7 +42,7 @@ export default function StatCards({ summary }: StatCardsProps) {
       {/* 2. Pemasukan */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:p-4.5 hover:border-zinc-700/70 transition flex flex-col justify-between">
         <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
-          <span className="truncate pr-1">Pemasukan</span>
+          <span className="truncate pr-1">{t('Pemasukan', 'Income')}</span>
           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-green-500/10 text-green-400 flex items-center justify-center shrink-0">
             <ArrowDownLeft size={14} className="sm:w-4 sm:h-4" />
           </div>
@@ -50,7 +52,7 @@ export default function StatCards({ summary }: StatCardsProps) {
             +{formatIDR(summary.monthlyIncome)}
           </div>
           <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-zinc-400 truncate">
-            Hari ini: +{formatIDR(summary.todayIncome)}
+            {t('Hari ini', 'Today')}: +{formatIDR(summary.todayIncome)}
           </p>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default function StatCards({ summary }: StatCardsProps) {
       {/* 3. Pengeluaran */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:p-4.5 hover:border-zinc-700/70 transition flex flex-col justify-between">
         <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
-          <span className="truncate pr-1">Pengeluaran</span>
+          <span className="truncate pr-1">{t('Pengeluaran', 'Expenses')}</span>
           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center shrink-0">
             <ArrowUpRight size={14} className="sm:w-4 sm:h-4" />
           </div>
@@ -68,7 +70,7 @@ export default function StatCards({ summary }: StatCardsProps) {
             -{formatIDR(summary.monthlyExpense)}
           </div>
           <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-zinc-400 truncate">
-            Hari ini: -{formatIDR(summary.todayExpense)}
+            {t('Hari ini', 'Today')}: -{formatIDR(summary.todayExpense)}
           </p>
         </div>
       </div>
@@ -76,7 +78,7 @@ export default function StatCards({ summary }: StatCardsProps) {
       {/* 4. Sisa Bersih / Tabungan */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-3 sm:p-4.5 hover:border-zinc-700/70 transition flex flex-col justify-between">
         <div className="flex items-center justify-between text-[11px] sm:text-xs text-zinc-400">
-          <span className="truncate pr-1">Sisa Uang</span>
+          <span className="truncate pr-1">{t('Sisa Uang', 'Net Left')}</span>
           <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center shrink-0">
             <PiggyBank size={14} className="sm:w-4 sm:h-4" />
           </div>
@@ -86,7 +88,7 @@ export default function StatCards({ summary }: StatCardsProps) {
             {formatIDR(summary.monthlyNet)}
           </div>
           <p className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-zinc-400 truncate">
-            Tabungan: <span className="text-emerald-400 font-semibold">{summary.savingsRate}%</span>
+            {t('Tabungan', 'Savings')}: <span className="text-emerald-400 font-semibold">{summary.savingsRate}%</span>
           </p>
         </div>
       </div>

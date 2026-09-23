@@ -11,7 +11,8 @@ export async function GET(req: Request) {
     const categoryBreakdown = repo.getCategoryBreakdown({ user_id: user?.id, type: 'expense' });
     const budgets = repo.getBudgetsWithUsage({ user_id: user?.id });
 
-    const advice = await generateFinancialAdvice(summary, categoryBreakdown, budgets);
+    const lang = new URL(req.url).searchParams.get('lang') === 'en' ? 'en' : 'id';
+    const advice = await generateFinancialAdvice(summary, categoryBreakdown, budgets, lang);
     if (!advice) {
       return NextResponse.json({ success: false, error: 'Gagal menghasilkan analisis AI' }, { status: 500 });
     }

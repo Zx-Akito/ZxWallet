@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { X, Plus } from '@phosphor-icons/react';
 import CustomDropdown from './CustomDropdown';
 import { Category } from '../types';
+import { useT } from '../lib/i18n';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function AddTransactionModal({
   categories = [], 
   onSave 
 }: AddTransactionModalProps) {
+  const t = useT();
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -64,8 +66,8 @@ export default function AddTransactionModal({
             <Plus size={16} weight="bold" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-100">Catat Transaksi Baru</h3>
-            <p className="text-[11px] sm:text-xs text-zinc-400">Pemasukan atau pengeluaran kas manual</p>
+            <h3 className="text-sm font-semibold text-zinc-100">{t('Catat Transaksi Baru', 'New Transaction')}</h3>
+            <p className="text-[11px] sm:text-xs text-zinc-400">{t('Pemasukan atau pengeluaran kas manual', 'Record income or expense manually')}</p>
           </div>
         </div>
 
@@ -84,7 +86,7 @@ export default function AddTransactionModal({
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              Pengeluaran
+              {t('Pengeluaran', 'Expense')}
             </button>
             <button
               type="button"
@@ -98,19 +100,19 @@ export default function AddTransactionModal({
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              Pemasukan
+              {t('Pemasukan', 'Income')}
             </button>
           </div>
 
           {/* Amount */}
           <div>
             <label className="block text-xs text-zinc-400 mb-1 font-medium">
-              Nominal (Rp)
+              {t('Nominal', 'Amount')} (Rp)
             </label>
             <input
               type="number"
               required
-              placeholder="Contoh: 50000"
+              placeholder={t('Contoh: 50000', 'e.g. 50000')}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -119,17 +121,17 @@ export default function AddTransactionModal({
 
           {/* Category */}
           <div>
-            <label className="block text-xs text-zinc-400 mb-1 font-medium">Kategori</label>
+            <label className="block text-xs text-zinc-400 mb-1 font-medium">{t('Kategori', 'Category')}</label>
             <CustomDropdown
               value={category}
               onChange={(val) => setCategory(val)}
-              placeholder="Otomatis Deteksi Kategori"
+              placeholder={t('Otomatis Deteksi Kategori', 'Auto-detect Category')}
               className="w-full"
               options={[
-                { value: '', label: 'Otomatis Deteksi Kategori' },
+                { value: '', label: t('Otomatis Deteksi Kategori', 'Auto-detect Category') },
                 ...filteredCategories.map((c) => ({
                   value: c.name,
-                  label: c.name,
+                  label: t.cat(c.name),
                   color: c.color
                 }))
               ]}
@@ -138,10 +140,10 @@ export default function AddTransactionModal({
 
           {/* Description */}
           <div>
-            <label className="block text-xs text-zinc-400 mb-1 font-medium">Keterangan</label>
+            <label className="block text-xs text-zinc-400 mb-1 font-medium">{t('Keterangan', 'Description')}</label>
             <input
               type="text"
-              placeholder="Contoh: Bensin motor pertamax"
+              placeholder={t('Contoh: Bensin motor pertamax', 'e.g. Motorbike fuel')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500/50"
@@ -150,7 +152,7 @@ export default function AddTransactionModal({
 
           {/* Date */}
           <div>
-            <label className="block text-xs text-zinc-400 mb-1 font-medium">Tanggal</label>
+            <label className="block text-xs text-zinc-400 mb-1 font-medium">{t('Tanggal', 'Date')}</label>
             <input
               type="date"
               value={date}
@@ -165,13 +167,13 @@ export default function AddTransactionModal({
               onClick={onClose}
               className="flex-1 py-2 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition cursor-pointer"
             >
-              Batal
+              {t('Batal', 'Cancel')}
             </button>
             <button
               type="submit"
               className="flex-1 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition cursor-pointer shadow-sm shadow-emerald-900/40"
             >
-              Simpan Transaksi
+              {t('Simpan Transaksi', 'Save Transaction')}
             </button>
           </div>
         </form>

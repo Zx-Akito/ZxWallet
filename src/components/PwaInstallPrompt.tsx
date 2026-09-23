@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { DownloadSimple, X } from '@phosphor-icons/react';
+import { useT } from '../lib/i18n';
 
 export default function PwaInstallPrompt() {
+  const t = useT();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -50,8 +52,8 @@ export default function PwaInstallPrompt() {
           className="w-10 h-10 rounded-xl shrink-0 border border-zinc-800"
         />
         <div className="min-w-0">
-          <div className="font-semibold text-xs text-zinc-100 truncate">Pasang ZxWallet</div>
-          <p className="text-[11px] text-zinc-400 truncate">Tambahkan ke Layar Utama HP</p>
+          <div className="font-semibold text-xs text-zinc-100 truncate">{t('Pasang ZxWallet', 'Install ZxWallet')}</div>
+          <p className="text-[11px] text-zinc-400 truncate">{t('Tambahkan ke Layar Utama HP', 'Add to your home screen')}</p>
         </div>
       </div>
 
@@ -61,12 +63,12 @@ export default function PwaInstallPrompt() {
           className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition cursor-pointer shadow-sm shadow-emerald-900/40"
         >
           <DownloadSimple size={13} weight="bold" />
-          <span>Pasang</span>
+          <span>{t('Pasang', 'Install')}</span>
         </button>
         <button
           onClick={handleDismiss}
           className="p-1.5 text-zinc-400 hover:text-zinc-200 rounded-lg hover:bg-zinc-800 transition cursor-pointer"
-          title="Tutup"
+          title={t('Tutup', 'Close')}
         >
           <X size={14} />
         </button>
