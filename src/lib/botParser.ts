@@ -83,6 +83,7 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
 
       if (aiResult.intent === 'search' && aiResult.search?.query) {
         const results = await searchWeb(aiResult.search.query);
+        console.log(`[Web Search] "${aiResult.search.query}" -> ${results.length} hasil`);
         const answer = await answerFromSearch(message, results, senderMeta.lang);
         const reply = answer || (senderMeta.lang === 'en'
           ? 'Sorry, I could not fetch the latest information right now. Please try again later.'

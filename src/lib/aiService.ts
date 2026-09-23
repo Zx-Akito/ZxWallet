@@ -156,6 +156,7 @@ Petunjuk Respons:
    - Isi search.query dengan kata kunci pencarian yang tepat.
    - Field reply boleh kosong; jawaban akan dibuat setelah hasil pencarian didapat.
    - Pertanyaan tentang data keuangan pengguna sendiri BUKAN intent ini.
+   - Anda PUNYA akses pencarian internet lewat intent ini. JANGAN pernah menjawab bahwa Anda tidak punya akses data live/terbaru; pakai intent="search" (termasuk "saham apa yang lagi trending", "berita ekonomi hari ini").
 
 BAHASA: ${lang
     ? `Tulis field reply WAJIB dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}, apa pun bahasa pesan pengguna. Isi export.language dengan "${lang}".`
