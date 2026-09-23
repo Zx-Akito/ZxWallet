@@ -4,10 +4,10 @@
   "description": "",
   "main": "server/botRunner.js",
   "scripts": {
-    "dev": "concurrently -n \"next,bot\" -c \"blue,green\" \"next dev -p 3000\" \"node server/botRunner.js\"",
+    "dev": "concurrently -n \"next,bot\" -c \"blue,green\" \"next dev -p 3006\" \"node server/botRunner.js\"",
     "build": "next build",
-    "start": "concurrently -n \"next,bot\" -c \"blue,green\" \"next start -p 3000\" \"node server/botRunner.js\"",
-    "next": "next start -p 3000",
+    "start": "concurrently -n \"next,bot\" -c \"blue,green\" \"next start -p 3006\" \"node server/botRunner.js\"",
+    "next": "next start -p 3006",
     "bot": "node server/botRunner.js"
   },
   "keywords": [],

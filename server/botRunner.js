@@ -5,7 +5,7 @@ console.log('🤖 ZxWallet WhatsApp Bot Listener Daemon is active.');
 let lastStatus = null;
 
 function checkBotStatus() {
-  const req = http.get('http://localhost:3000/api/wa/status', (res) => {
+  const req = http.get('http://localhost:3006/api/wa/status', (res) => {
     let data = '';
     res.on('data', (chunk) => {
       data += chunk;
@@ -20,7 +20,7 @@ function checkBotStatus() {
             if (currentStatus === 'connected') {
               console.log('✅ WhatsApp bot successfully connected!');
             } else if (currentStatus === 'qr_ready') {
-              console.log('📱 WhatsApp QR Code siap dipindai di Dashboard: http://localhost:3000');
+              console.log('📱 WhatsApp QR Code siap dipindai di Dashboard: http://localhost:3006');
             } else {
               console.log(`ℹ️ WhatsApp status: ${currentStatus}`);
             }

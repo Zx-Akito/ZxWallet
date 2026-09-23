@@ -48,7 +48,7 @@ cp .env.example .env   # then fill in the values
 npm run dev
 ```
 
-Open http://localhost:3000, log in, go to the **Bot WA** tab, and scan the QR code with WhatsApp (**Linked devices**).
+Open http://localhost:3006, log in, go to the **Bot WA** tab, and scan the QR code with WhatsApp (**Linked devices**).
 
 For production:
 
