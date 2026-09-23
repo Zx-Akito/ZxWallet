@@ -1,4 +1,5 @@
 import { Summary, CategoryBreakdown, Budget } from '../types';
+import type { SearchResult } from './webSearch';
 
 const OMNI_BASE_URL = process.env.OMNI_BASE_URL;
 const OMNI_API_KEY = process.env.OMNI_API_KEY;
@@ -100,7 +101,7 @@ ${categoryNames}
 === TUGAS ANDA ===
 Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam format JSON:
 {
-  "intent": "transaction" | "query" | "general" | "export" | "reset",
+  "intent": "transaction" | "query" | "general" | "export" | "reset" | "search",
   "transaction": {
     "type": "expense" | "income",
     "amount": number (nominal bersih dalam Rupiah, tanpa titik/koma),
@@ -112,6 +113,9 @@ Analisis pesan pengguna ("${userMessage}") dan berikan respons terstruktur dalam
     "language": "id" | "en",
     "startDate": "YYYY-MM-DD" | null,
     "endDate": "YYYY-MM-DD" | null
+  } | null,
+  "search": {
+    "query": string (kata kunci pencarian web yang ringkas dan spesifik, sertakan tahun/tanggal bila relevan)
   } | null,
   "reply": string (teks pesan balasan Anda secara lengkap, ramah, natural bergaya WhatsApp, gunakan *tebal* untuk angka/kategori penting, emoji secukupnya, dan info saldo baru atau pengingat anggaran jika relevan)
 }
@@ -147,6 +151,11 @@ Petunjuk Respons:
    - Set intent="reset", transaction=null, export=null
    - Di field reply, konfirmasi singkat bahwa riwayat percakapan sudah dihapus. Data transaksi TIDAK ikut terhapus.
    - Menghapus transaksi/data keuangan BUKAN intent ini.
+9. Jika pengguna butuh informasi terbaru dari internet yang tidak ada di data finansial di atas ("harga emas hari ini", "kurs dollar sekarang", "harga saham BBCA", "berita suku bunga BI", "promo cashback e-wallet"):
+   - Set intent="search", transaction=null, export=null
+   - Isi search.query dengan kata kunci pencarian yang tepat.
+   - Field reply boleh kosong; jawaban akan dibuat setelah hasil pencarian didapat.
+   - Pertanyaan tentang data keuangan pengguna sendiri BUKAN intent ini.
 
 BAHASA: ${lang
     ? `Tulis field reply WAJIB dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}, apa pun bahasa pesan pengguna. Isi export.language dengan "${lang}".`
@@ -226,4 +235,28 @@ Tulis semua teks (healthStatus, summary, title, advice) dalam ${lang === 'en' ? 
     console.error('Failed to generate advice:', err.message);
     return null;
   }
+}
+
+// Second pass for intent="search": answer the user from web results.
+export async function answerFromSearch(userMessage: string, results: SearchResult[], lang?: 'id' | 'en') {
+  const sources = results.length > 0
+    ? results.map((r, i) => `[${i + 1}] ${r.title}\n${r.url}\n${r.content}`).join('\n\n')
+    : 'Tidak ada hasil pencarian.';
+
+  const systemPrompt = `Anda adalah ZxWallet AI, asisten keuangan pribadi di WhatsApp.
+Tanggal hari ini: ${new Date().toISOString().split('T')[0]}
+
+Jawab pertanyaan pengguna HANYA berdasarkan hasil pencarian web berikut. Jika hasilnya tidak menjawab, katakan terus terang bahwa informasinya tidak ditemukan. Jangan mengarang angka.
+Tulis gaya WhatsApp: ringkas, *tebal* untuk angka penting, emoji secukupnya. Di akhir, cantumkan 1-3 link sumber yang dipakai.
+${lang
+    ? `Tulis jawaban dalam ${lang === 'en' ? 'bahasa Inggris (English)' : 'bahasa Indonesia'}.`
+    : 'Tulis jawaban dalam bahasa yang sama dengan pesan pengguna.'}
+
+=== HASIL PENCARIAN WEB ===
+${sources}`;
+
+  return callOmni([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage }
+  ], { temperature: 0.2 });
 }

@@ -1,6 +1,7 @@
 import { buildReport } from './reportExport';
 import * as repo from './financeRepo';
-import { parseWithAI } from './aiService';
+import { parseWithAI, answerFromSearch } from './aiService';
+import { searchWeb } from './webSearch';
 
 export function parseAmount(amountStr: string | number): number | null {
   if (!amountStr) return null;
@@ -78,6 +79,16 @@ export async function handleMessage(rawMessage: string, senderMeta: { senderPhon
       if (aiResult.intent === 'reset') {
         repo.clearAiHistory(historyKey);
         return { type: 'general', text: aiResult.reply || RESET_REPLY[senderMeta.lang === 'en' ? 'en' : 'id'] };
+      }
+
+      if (aiResult.intent === 'search' && aiResult.search?.query) {
+        const results = await searchWeb(aiResult.search.query);
+        const answer = await answerFromSearch(message, results, senderMeta.lang);
+        const reply = answer || (senderMeta.lang === 'en'
+          ? 'Sorry, I could not fetch the latest information right now. Please try again later.'
+          : 'Maaf, informasi terbaru belum bisa diambil sekarang. Coba lagi nanti ya.');
+        repo.addAiTurn(historyKey, message, JSON.stringify({ ...aiResult, reply }), MAX_HISTORY);
+        return { type: 'query', text: reply };
       }
 
       // Store the assistant turn as JSON so the model keeps answering in JSON.

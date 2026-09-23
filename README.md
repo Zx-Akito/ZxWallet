@@ -64,6 +64,7 @@ npm start
 | `OMNI_BASE_URL` | Base URL of the OpenAI-compatible API, for example `https://your-host/v1` |
 | `OMNI_API_KEY` | API key for that endpoint |
 | `OMNI_MODEL` | Model name to use |
+| `SEARXNG_URL` | URL of your SearXNG instance for web search (optional), for example `http://localhost:8080` |
 | `JWT_SECRET` | Secret for signing login tokens. Use a long random string, for example `openssl rand -hex 32`. |
 
 ### Bot owner number
