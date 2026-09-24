@@ -66,16 +66,11 @@ npm start
 | `OMNI_MODEL` | Nama model yang dipakai |
 | `SEARXNG_URL` | URL instance SearXNG untuk pencarian web (opsional), misalnya `http://localhost:8080` |
 | `JWT_SECRET` | Secret untuk menandatangani token login. Pakai string acak yang panjang, misalnya dari `openssl rand -hex 32`. |
+| `ADMIN_PHONE` | Nomor WhatsApp yang dibalas bot, sekaligus satu-satunya akun yang bisa mengatur koneksi. Lihat [Nomor pemilik bot](#nomor-pemilik-bot). |
 
 ### Nomor pemilik bot
 
-Bot hanya membalas satu nomor WhatsApp, dan hanya akun itu yang bisa mengatur koneksi WhatsApp. Nomor tersebut (`62895400233001`) saat ini tertulis langsung di kode. Untuk memakai nomormu sendiri, ganti nomor itu di:
-
-- `src/lib/baileysService.ts`
-- `src/app/api/wa/status/route.ts`
-- `src/app/api/wa/logout/route.ts`
-- `src/app/api/wa/restart/route.ts`
-- `src/components/WhatsAppSection.tsx`
+Bot hanya membalas satu nomor WhatsApp, dan hanya akun itu yang bisa mengatur koneksi WhatsApp. Isi nomor tersebut di `ADMIN_PHONE` (misalnya `62812xxxxxxx` atau `0812xxxxxxx`). Kalau `ADMIN_PHONE` kosong, bot mengabaikan semua pesan dan tidak ada akun yang bisa mengatur koneksi.
 
 ## Struktur project
 
