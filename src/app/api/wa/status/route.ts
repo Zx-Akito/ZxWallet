@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getWhatsAppService } from '@/lib/whatsappInstance';
 import { getUserFromRequest } from '@/lib/serverAuth';
+import { ADMIN_PHONE } from '@/lib/authRepo';
 
 export async function GET(req: Request) {
   try {
@@ -10,7 +11,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       success: true,
       data: getUserFromRequest(req) ? status : { status: status.status },
-      allowedPhone: '62895400233001'
+      allowedPhone: ADMIN_PHONE
     });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });

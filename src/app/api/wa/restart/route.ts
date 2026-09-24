@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getWhatsAppService } from '@/lib/whatsappInstance';
 import { getUserFromRequest, unauthorized } from '@/lib/serverAuth';
+import { ADMIN_PHONE } from '@/lib/authRepo';
 
 export async function POST(req: Request) {
   try {
     const user = getUserFromRequest(req);
     if (!user) return unauthorized();
-    if (user.phone !== '62895400233001') {
+    if (!ADMIN_PHONE || user.phone !== ADMIN_PHONE) {
       return NextResponse.json({
         success: false,
-        error: 'Akses ditolak: Gateway WhatsApp hanya untuk akun 0895400233001'
+        error: 'Akses ditolak: Gateway WhatsApp hanya untuk akun admin'
       }, { status: 403 });
     }
 

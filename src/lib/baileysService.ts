@@ -160,10 +160,9 @@ export default class WhatsAppService {
             const resolvedPhone = this.resolveRealPhone(remoteJid) || remoteClean || myPhone;
             const senderPhone = (resolvedPhone || '').replace(/\D/g, '');
 
-            // Exclusive to user 0895400233001
-            const ALLOWED_PHONE = '62895400233001';
-            if (senderPhone !== ALLOWED_PHONE) {
-              console.log(`[WA Abaikan] Pesan dari ${senderPhone} diabaikan (koneksi eksklusif untuk 0895400233001)`);
+            // Exclusive to the admin number (ADMIN_PHONE)
+            if (!authRepo.ADMIN_PHONE || senderPhone !== authRepo.ADMIN_PHONE) {
+              console.log(`[WA Abaikan] Pesan dari ${senderPhone} diabaikan (koneksi eksklusif untuk ${authRepo.ADMIN_PHONE || 'ADMIN_PHONE belum diisi'})`);
               continue;
             }
 

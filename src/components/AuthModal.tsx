@@ -193,7 +193,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
             }}
             className={`py-1.5 rounded-lg transition cursor-pointer ${
               mode === 'login'
-                ? 'bg-zinc-800 text-white shadow-xs'
+                ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -207,7 +207,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
             }}
             className={`py-1.5 rounded-lg transition cursor-pointer ${
               mode === 'register'
-                ? 'bg-zinc-800 text-white shadow-xs'
+                ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
@@ -232,7 +232,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
 
         {debugOtp && (
           <div className="mb-3.5 p-2.5 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-300 text-[11px] font-mono">
-            💡 {t('Kode OTP Pengujian', 'Test OTP code')}: <b className="text-white text-xs">{debugOtp}</b>
+            💡 {t('Kode OTP Pengujian', 'Test OTP code')}: <b className="text-zinc-50 text-xs">{debugOtp}</b>
           </div>
         )}
 
@@ -331,7 +331,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, dismissible 
             ) : (
               <form onSubmit={handleRegister} className="space-y-3.5">
                 <div className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-center justify-between">
-                  <span>{t('Nomor WA', 'WA Number')}: <b className="text-white font-mono">{phone}</b></span>
+                  <span>{t('Nomor WA', 'WA Number')}: <b className="text-zinc-50 font-mono">{phone}</b></span>
                   <button
                     type="button"
                     onClick={() => setStep(1)}

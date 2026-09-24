@@ -46,6 +46,7 @@ export default function HomePage() {
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdown[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [waStatus, setWaStatus] = useState<WhatsAppStatus | null>({ status: 'disconnected', qr: null, user: null });
+  const [adminPhone, setAdminPhone] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -188,7 +189,10 @@ export default function HomePage() {
   const fetchWAStatus = async () => {
     try {
       const res = await axios.get('/api/wa/status');
-      if (res.data?.success) setWaStatus(res.data.data);
+      if (res.data?.success) {
+        setWaStatus(res.data.data);
+        setAdminPhone(res.data.allowedPhone || '');
+      }
     } catch (e) {
       console.error(e);
     }
@@ -271,7 +275,7 @@ export default function HomePage() {
     document.documentElement.lang = t.lang;
   }, [t.lang]);
 
-  if (!authReady) return <div className="min-h-[100dvh] bg-[#09090b]" />;
+  if (!authReady) return <div className="min-h-[100dvh] bg-zinc-950" />;
 
   if (!currentUser) {
     return (
@@ -287,7 +291,7 @@ export default function HomePage() {
   const botWhatsAppUrl = `https://wa.me/${waStatus?.user?.phone || '6281916633003'}?text=${encodeURIComponent(t('Halo ZxWallet, cek saldo', 'Hi ZxWallet, check my balance'))}`;
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-400">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-400">
       {/* Toast Notification (Positioned Below Navbar) */}
       {toastMsg && (
         <div 
@@ -384,6 +388,7 @@ export default function HomePage() {
             <WhatsAppSection
               waStatus={waStatus}
               currentUser={currentUser}
+              adminPhone={adminPhone}
               onRefreshStatus={fetchWAStatus}
               onOpenSimulator={() => setIsSimulatorOpen(true)}
             />

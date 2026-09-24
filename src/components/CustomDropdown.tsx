@@ -65,7 +65,7 @@ export default function CustomDropdown({
       {/* Options Menu Popover */}
       {isOpen && (
         <div
-          className={`absolute left-0 top-full mt-1.5 w-full min-w-[185px] max-h-60 overflow-y-auto rounded-xl border border-zinc-800 bg-[#0c0d11] shadow-2xl p-1 z-50 text-xs no-scrollbar ${menuClassName}`}
+          className={`absolute left-0 top-full mt-1.5 w-full min-w-[185px] max-h-60 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 shadow-2xl p-1 z-50 text-xs no-scrollbar ${menuClassName}`}
         >
           {options.map((option) => {
             const isSelected = option.value === value;
@@ -80,7 +80,7 @@ export default function CustomDropdown({
                 className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-left transition cursor-pointer ${
                   isSelected
                     ? 'bg-emerald-950/50 text-emerald-300 font-medium'
-                    : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                    : 'text-zinc-300 hover:bg-zinc-900 hover:text-zinc-50'
                 }`}
               >
                 <div className="flex items-center space-x-2 truncate pr-2">

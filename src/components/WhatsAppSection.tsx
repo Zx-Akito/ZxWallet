@@ -24,18 +24,21 @@ interface WhatsAppSectionProps {
   onRefreshStatus: () => void;
   onOpenSimulator: () => void;
   currentUser: User | null;
+  adminPhone: string;
 }
 
 export default function WhatsAppSection({ 
   waStatus, 
   onRefreshStatus, 
   onOpenSimulator, 
-  currentUser 
+  currentUser,
+  adminPhone
 }: WhatsAppSectionProps) {
   const t = useT();
   const [loadingQR, setLoadingQR] = useState(false);
 
-  const isOwner = currentUser?.phone === '62895400233001';
+  const isOwner = !!adminPhone && currentUser?.phone === adminPhone;
+  const adminPhoneLocal = adminPhone ? '0' + adminPhone.slice(2) : '-';
   const isConnected = waStatus?.status === 'connected';
   const isQR = waStatus?.status === 'qr_ready';
 
@@ -85,9 +88,9 @@ export default function WhatsAppSection({
                 <div className="font-semibold text-xs text-zinc-200">{t('Koneksi WhatsApp Eksklusif', 'Exclusive WhatsApp Connection')}</div>
                 <p className="text-[11px] text-zinc-400 mt-1">
                   {t.lang === 'en' ? (
-<>This bot's WhatsApp connection is dedicated to the number <b>0895400233001</b>.</>
+<>This bot's WhatsApp connection is dedicated to the number <b>{adminPhoneLocal}</b>.</>
 ) : (
-<>Koneksi WhatsApp bot ini didedikasikan untuk nomor pengguna <b>0895400233001</b>.</>
+<>Koneksi WhatsApp bot ini didedikasikan untuk nomor pengguna <b>{adminPhoneLocal}</b>.</>
 )}
                 </p>
               </div>

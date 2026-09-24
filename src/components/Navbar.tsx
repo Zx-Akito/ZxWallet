@@ -12,11 +12,13 @@ import {
   Target,
   CaretDown,
   SignOut,
-  Translate
+  Translate,
+  Sun
 } from '@phosphor-icons/react';
 import { User as UserType } from '../types';
 import { useT } from '../lib/i18n';
 import LangToggle from './LangToggle';
+import ThemeToggle from './ThemeToggle';
 
 interface NavbarProps {
   activeTab: string;
@@ -87,7 +89,7 @@ export default function Navbar({
               onClick={() => setActiveTab('overview')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'bg-zinc-800 text-white shadow-xs'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -98,7 +100,7 @@ export default function Navbar({
               onClick={() => setActiveTab('analytics')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === 'analytics'
-                  ? 'bg-zinc-800 text-white shadow-xs'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -109,7 +111,7 @@ export default function Navbar({
               onClick={() => setActiveTab('budget')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === 'budget'
-                  ? 'bg-zinc-800 text-white shadow-xs'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -120,7 +122,7 @@ export default function Navbar({
               onClick={() => setActiveTab('whatsapp')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
                 activeTab === 'whatsapp'
-                  ? 'bg-zinc-800 text-white shadow-xs'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-xs'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -163,7 +165,7 @@ export default function Navbar({
                 {menuOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-zinc-800 bg-[#0c0d11] shadow-2xl p-1 z-50 text-xs animate-pop-in origin-top-right"
+                    className="absolute right-0 top-full mt-1.5 w-56 rounded-xl border border-zinc-800 bg-zinc-950 shadow-2xl p-1 z-50 text-xs animate-pop-in origin-top-right"
                   >
                     <div className="px-2.5 py-2 border-b border-zinc-800/80 mb-1">
                       <div className="font-semibold text-zinc-100 truncate">{currentUser.name}</div>
@@ -178,6 +180,14 @@ export default function Navbar({
                         <span>{t('Bahasa', 'Language')}</span>
                       </span>
                       <LangToggle />
+                    </div>
+
+                    <div className="flex items-center justify-between px-2.5 py-2 text-zinc-300">
+                      <span className="flex items-center space-x-2">
+                        <Sun size={14} className="text-zinc-400" />
+                        <span>{t('Tema', 'Theme')}</span>
+                      </span>
+                      <ThemeToggle />
                     </div>
 
                     <button

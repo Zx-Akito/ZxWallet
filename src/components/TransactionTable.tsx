@@ -56,7 +56,7 @@ export default function TransactionTable({
           <button
             onClick={() => onFilterChange({ ...filters, type: '', page: 1 })}
             className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-              !filters.type ? 'bg-zinc-800 text-white shadow-xs' : 'text-zinc-400 hover:text-zinc-200'
+              !filters.type ? 'bg-zinc-800 text-zinc-50 shadow-xs' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {t('Semua', 'All')} ({total})

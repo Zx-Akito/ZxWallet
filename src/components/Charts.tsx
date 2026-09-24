@@ -174,8 +174,8 @@ export default function Charts({ cashflow = [], categoryBreakdown: rawBreakdown 
                   <Tooltip 
                     formatter={(value: any) => [formatIDR(value), 'Total']}
                     contentStyle={{
-                      backgroundColor: '#18181b',
-                      borderColor: '#3f3f46',
+                      backgroundColor: 'var(--color-zinc-900)',
+                      borderColor: 'var(--color-zinc-700)',
                       borderRadius: '0.75rem',
                       fontSize: '11px',
                       fontFamily: 'monospace'

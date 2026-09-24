@@ -31,9 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className="dark">
+    <html lang="id" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Apply saved theme before paint to avoid a dark flash */}
+        <script dangerouslySetInnerHTML={{ __html: "try{if(localStorage.getItem('zxwallet_theme')==='light')document.documentElement.className='light'}catch(e){}" }} />
+      </head>
       <body 
-        className="bg-[#09090b] text-[#f4f4f5] antialiased selection:bg-emerald-500/20 selection:text-emerald-400 md:pb-0 min-h-[100dvh]"
+        className="bg-zinc-950 text-zinc-100 antialiased selection:bg-emerald-500/20 selection:text-emerald-400 md:pb-0 min-h-[100dvh]"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}
       >
         {children}

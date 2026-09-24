@@ -162,7 +162,7 @@ export default function FloatingChatSimulator({
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 p-3.5 overflow-y-auto space-y-2.5 bg-[#0a0c10] text-xs">
+          <div className="flex-1 p-3.5 overflow-y-auto space-y-2.5 bg-zinc-950 text-xs">
             {messages.map((m, idx) => {
               const isUser = m.sender === 'user';
               return (

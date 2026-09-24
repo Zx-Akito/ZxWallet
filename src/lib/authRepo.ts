@@ -5,6 +5,9 @@ import { User } from '../types';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// The only number the bot replies to and the only account that manages the WhatsApp gateway.
+export const ADMIN_PHONE = process.env.ADMIN_PHONE ? process.env.ADMIN_PHONE.replace(/\D/g, '').replace(/^0/, '62') : '';
+
 export function normalizePhone(phone: string): string {
   let clean = (phone || '').toString().replace(/\D/g, '');
   if (clean.startsWith('0')) {
