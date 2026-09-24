@@ -160,9 +160,10 @@ export default class WhatsAppService {
             const resolvedPhone = this.resolveRealPhone(remoteJid) || remoteClean || myPhone;
             const senderPhone = (resolvedPhone || '').replace(/\D/g, '');
 
-            // Exclusive to the admin number (ADMIN_PHONE)
-            if (!authRepo.ADMIN_PHONE || senderPhone !== authRepo.ADMIN_PHONE) {
-              console.log(`[WA Abaikan] Pesan dari ${senderPhone} diabaikan (koneksi eksklusif untuk ${authRepo.ADMIN_PHONE || 'ADMIN_PHONE belum diisi'})`);
+            // Only the admin (ADMIN_PHONE) and registered users get replies
+            const isAdmin = !!authRepo.ADMIN_PHONE && senderPhone === authRepo.ADMIN_PHONE;
+            if (!isAdmin && !authRepo.findUserByPhone(senderPhone)) {
+              console.log(`[WA Abaikan] Pesan dari ${senderPhone} diabaikan (belum terdaftar)`);
               continue;
             }
 
